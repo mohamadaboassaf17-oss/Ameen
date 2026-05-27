@@ -1,0 +1,43 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+build/
+bin/
+obj/
+
+# IDE
+.idea/
+.vs/
+.vscode/
+*.user
+*.suo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Android
+*.apk
+*.aab
+*.ap_
+*.dex
+local.properties
+gradle/local.properties
+
+# .NET
+*.nupkg
+TestResults/
+
+# Environment
+.env
+.env.local
+*.log
+
+# Artifacts
+nul
+*.tmp
+
+# Extension release zips
+release/*.zip

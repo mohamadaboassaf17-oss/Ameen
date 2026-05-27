@@ -1,0 +1,36 @@
+name: "Windows CI"
+
+on:
+  push:
+    paths:
+      - "windows/**"
+  pull_request:
+    paths:
+      - "windows/**"
+
+concurrency:
+  group: windows-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET 8.0
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Restore
+        run: dotnet restore
+        working-directory: windows
+
+      - name: Build
+        run: dotnet build --no-restore
+        working-directory: windows
+
+      - name: Test
+        run: dotnet test Ameen.Tests.csproj --no-build
+        working-directory: windows

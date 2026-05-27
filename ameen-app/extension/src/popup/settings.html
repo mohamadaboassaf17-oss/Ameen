@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>إعدادات أمين</title>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg:#07070c;
+      --surface:#111118;
+      --surface-elevated:#181822;
+      --surface-high:#21212e;
+      --primary:#a78bfa;
+      --primary-dim:#7c6ff7;
+      --primary-container:#272148;
+      --on-primary:#fff;
+      --on-surface:#e8e8f0;
+      --on-surface-dim:#9d9db4;
+      --on-surface-subtle:#636378;
+      --outline:#2e2e3d;
+      --outline-soft:#1e1e2a;
+      --error:#ff6b6b;
+      --error-container:#3d1a1a;
+      --success:#4ade80;
+      --radius-sm:8px;
+      --radius-md:12px;
+      --radius-lg:16px;
+      --ease:0.3s cubic-bezier(0.4,0,0.2,1);
+      --font:'Segoe UI',system-ui,-apple-system,'Helvetica Neue','Noto Sans Arabic',sans-serif;
+    }
+    html,body{
+      width:390px;
+      min-height:300px;
+      max-height:480px;
+      overflow-x:hidden;
+      background:var(--surface);
+      color:var(--on-surface);
+      font-family:var(--font);
+      font-size:14px;
+      line-height:1.6;
+      -webkit-font-smoothing:antialiased;
+    }
+    body{margin:0;padding:0}
+
+    ::-webkit-scrollbar{width:4px}
+    ::-webkit-scrollbar-track{background:transparent}
+    ::-webkit-scrollbar-thumb{background:var(--outline);border-radius:4px}
+
+    #settings{
+      display:flex;
+      flex-direction:column;
+      padding:24px;
+      gap:20px;
+    }
+    #settings h2{
+      font-size:18px;
+      font-weight:800;
+      letter-spacing:-0.02em;
+      text-align:center;
+      margin-bottom:4px;
+      background:linear-gradient(135deg,var(--primary),#c084fc,#818cf8);
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+      background-clip:text;
+    }
+    .setting-group{
+      background:var(--surface-elevated);
+      border:1px solid var(--outline-soft);
+      border-radius:var(--radius-md);
+      padding:16px;
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+    .setting-group h3{
+      font-size:13px;
+      font-weight:600;
+      color:var(--on-surface-dim);
+      text-transform:uppercase;
+      letter-spacing:0.04em;
+    }
+    .setting-row{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+    }
+    .setting-row .setting-label{
+      font-size:13px;
+      color:var(--on-surface);
+    }
+    .setting-row .setting-desc{
+      font-size:11px;
+      color:var(--on-surface-subtle);
+      margin-top:2px;
+    }
+    .kbd{
+      display:inline-block;
+      background:var(--surface-high);
+      border:1px solid var(--outline);
+      border-radius:4px;
+      padding:1px 6px;
+      font-family:'Cascadia Code',monospace;
+      font-size:11px;
+      color:var(--primary-dim);
+    }
+    button{
+      padding:10px 20px;
+      border:none;
+      border-radius:var(--radius-sm);
+      background:var(--primary);
+      color:var(--on-primary);
+      font-family:var(--font);
+      font-size:13px;
+      font-weight:500;
+      cursor:pointer;
+      transition:background var(--ease),transform 0.1s var(--ease);
+    }
+    button:hover:not(:disabled){background:var(--primary-dim)}
+    button:active:not(:disabled){transform:scale(0.97)}
+    button:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+    button:disabled{opacity:0.4;cursor:not-allowed}
+    button.danger{
+      background:var(--error-container);
+      color:var(--error);
+    }
+    button.danger:hover:not(:disabled){background:var(--error);color:var(--on-primary)}
+    .version-info{
+      text-align:center;
+      font-size:11px;
+      color:var(--on-surface-subtle);
+      padding-top:8px;
+      border-top:1px solid var(--outline-soft);
+    }
+    *:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+  </style>
+</head>
+<body>
+  <div id="settings">
+    <h2>إعدادات أمين</h2>
+
+    <div class="setting-group">
+      <div class="setting-row">
+        <div>
+          <div class="setting-label">اختصار لوحة المفاتيح</div>
+          <div class="setting-desc">لفتح نافذة أمين بسرعة</div>
+        </div>
+        <span class="kbd">Ctrl+Shift+L</span>
+      </div>
+    </div>
+
+    <div class="setting-group">
+      <div class="setting-row">
+        <div>
+          <div class="setting-label">قطع اتصال الإضافة</div>
+          <div class="setting-desc">قطع اتصال الإضافة بتطبيق أمين الحالي. يمكنك إعادة الاقتران لاحقاً</div>
+        </div>
+      </div>
+      <button id="btnDisconnect" class="danger">قطع الاتصال</button>
+    </div>
+
+    <div class="setting-group">
+      <div class="setting-row">
+        <div>
+          <div class="setting-label">إعادة تعيين الاقتران</div>
+          <div class="setting-desc">مسح جميع بيانات الاقتران وبدء عملية إعداد جديدة</div>
+        </div>
+      </div>
+      <button id="btnResetPairing" class="danger">إعادة تعيين</button>
+    </div>
+
+    <div id="disconnectedInfo" style="display:none;" class="setting-group">
+      <p style="text-align:center;color:var(--success);font-size:13px">✓ تم قطع الاتصال بنجاح</p>
+    </div>
+
+    <p class="version-info">أمين — الإصدار <span id="versionDisplay">1.0.0</span></p>
+  </div>
+  <script src="settings.js"></script>
+</body>
+</html>

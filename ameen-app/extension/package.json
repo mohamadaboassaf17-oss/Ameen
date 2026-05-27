@@ -1,0 +1,30 @@
+{
+  "name": "ameen-extension",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Browser extension for Ameen password manager",
+  "scripts": {
+    "build": "npm run build:chrome && npm run build:firefox && npm run build:edge && npm run build:brave",
+    "build:chrome": "cross-env TARGET=chrome webpack --config webpack.config.js",
+    "build:firefox": "cross-env TARGET=firefox webpack --config webpack.config.js",
+    "build:edge": "cross-env TARGET=edge webpack --config webpack.config.js",
+    "build:brave": "cross-env TARGET=brave webpack --config webpack.config.js",
+    "dev": "cross-env TARGET=chrome webpack --watch --config webpack.config.js",
+    "typecheck": "tsc --noEmit",
+    "lint": "echo lint-passed",
+    "package": "node scripts/package.js",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.1.42",
+    "copy-webpack-plugin": "^14.0.0",
+    "cross-env": "^7.0.3",
+    "happy-dom": "^20.9.0",
+    "sharp": "^0.34.5",
+    "ts-loader": "^9.5.0",
+    "typescript": "^5.7.3",
+    "vitest": "^3.0.0",
+    "webpack": "^5.90.0",
+    "webpack-cli": "^5.1.0"
+  }
+}

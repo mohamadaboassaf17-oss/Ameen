@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Ameen.Windows.Pages.GeneratorPage"
+             Title="مولد كلمات المرور"
+             BackgroundColor="{StaticResource BackgroundColor}">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="24" Spacing="16">
+
+            <!-- Title -->
+            <Label Text="مولد كلمات المرور" FontSize="22" FontAttributes="Bold"
+                   TextColor="{StaticResource PrimaryColor}"
+                   HorizontalTextAlignment="Center" />
+
+            <!-- Tab switch -->
+            <Grid ColumnDefinitions="*,*" Margin="0,0,0,8">
+                <Button x:Name="PasswordTabBtn" Text="كلمة مرور"
+                        Clicked="OnPasswordTabClicked"
+                        BackgroundColor="{StaticResource PrimaryColor}"
+                        TextColor="White" CornerRadius="8"
+                        HeightRequest="40" FontSize="14" />
+                <Button x:Name="PassphraseTabBtn" Text="عبارة مرور"
+                        Grid.Column="1" Clicked="OnPassphraseTabClicked"
+                        BackgroundColor="{StaticResource SurfaceColor}"
+                        TextColor="{StaticResource TextSecondary}"
+                        CornerRadius="8" HeightRequest="40" FontSize="14" />
+            </Grid>
+
+            <!-- ===== Password mode ===== -->
+            <VerticalStackLayout x:Name="PasswordPanel" Spacing="12">
+
+                <Label Text="الطول" TextColor="{StaticResource TextPrimary}" FontSize="14" />
+                <Grid ColumnDefinitions="*,60" ColumnSpacing="12">
+                    <Slider x:Name="LengthSlider" Minimum="8" Maximum="64" Value="20"
+                            ValueChanged="OnLengthChanged"
+                            MinimumTrackColor="{StaticResource PrimaryColor}"
+                            MaximumTrackColor="{StaticResource TextSecondary}"
+                            ThumbColor="{StaticResource PrimaryColor}" />
+                    <Label x:Name="LengthLabel" Grid.Column="1" Text="20"
+                           TextColor="{StaticResource TextPrimary}" FontSize="16"
+                           VerticalTextAlignment="Center" FontAttributes="Bold" />
+                </Grid>
+
+                <Label Text="الخيارات" TextColor="{StaticResource TextPrimary}" FontSize="14" Margin="0,8,0,0" />
+
+                <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" ColumnSpacing="12" RowSpacing="8">
+                    <HorizontalStackLayout Spacing="6">
+                        <CheckBox x:Name="UppercaseCheck" IsChecked="True"
+                                  Color="{StaticResource PrimaryColor}" />
+                        <Label Text="أحرف كبيرة (A-Z)" VerticalTextAlignment="Center"
+                               TextColor="{StaticResource TextPrimary}" FontSize="13" />
+                    </HorizontalStackLayout>
+                    <HorizontalStackLayout Grid.Column="1" Spacing="6">
+                        <CheckBox x:Name="LowercaseCheck" IsChecked="True"
+                                  Color="{StaticResource PrimaryColor}" />
+                        <Label Text="أحرف صغيرة (a-z)" VerticalTextAlignment="Center"
+                               TextColor="{StaticResource TextPrimary}" FontSize="13" />
+                    </HorizontalStackLayout>
+                    <HorizontalStackLayout Grid.Row="1" Spacing="6">
+                        <CheckBox x:Name="DigitsCheck" IsChecked="True"
+                                  Color="{StaticResource PrimaryColor}" />
+                        <Label Text="أرقام (0-9)" VerticalTextAlignment="Center"
+                               TextColor="{StaticResource TextPrimary}" FontSize="13" />
+                    </HorizontalStackLayout>
+                    <HorizontalStackLayout Grid.Row="1" Grid.Column="1" Spacing="6">
+                        <CheckBox x:Name="SymbolsCheck" IsChecked="False"
+                                  Color="{StaticResource PrimaryColor}" />
+                        <Label Text="رموز (!@#$)" VerticalTextAlignment="Center"
+                               TextColor="{StaticResource TextPrimary}" FontSize="13" />
+                    </HorizontalStackLayout>
+                </Grid>
+
+                <HorizontalStackLayout Spacing="6" Margin="0,4,0,0">
+                    <CheckBox x:Name="AmbiguousCheck" IsChecked="False"
+                              Color="{StaticResource PrimaryColor}" />
+                    <Label Text="تجنب الرموز المتشابهة (Il1O0)" VerticalTextAlignment="Center"
+                           TextColor="{StaticResource TextSecondary}" FontSize="13" />
+                </HorizontalStackLayout>
+
+                <!-- Strength indicator -->
+                <Frame BackgroundColor="{StaticResource SurfaceColor}" CornerRadius="8"
+                       Padding="12" Margin="0,8,0,0">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label x:Name="StrengthLabel" Text="قوة كلمة المرور: جيدة"
+                               TextColor="{StaticResource SuccessColor}" FontSize="14"
+                               VerticalTextAlignment="Center" />
+                        <ProgressBar x:Name="StrengthBar" Grid.Column="1"
+                                     Progress="0.7" ProgressColor="{StaticResource SuccessColor}"
+                                     WidthRequest="80" VerticalOptions="Center" />
+                    </Grid>
+                </Frame>
+            </VerticalStackLayout>
+
+            <!-- ===== Passphrase mode ===== -->
+            <VerticalStackLayout x:Name="PassphrasePanel" Spacing="12" IsVisible="False">
+
+                <Label Text="عدد الكلمات" TextColor="{StaticResource TextPrimary}" FontSize="14" />
+                <Grid ColumnDefinitions="*,60" ColumnSpacing="12">
+                    <Slider x:Name="WordCountSlider" Minimum="4" Maximum="10" Value="5"
+                            ValueChanged="OnWordCountChanged"
+                            MinimumTrackColor="{StaticResource PrimaryColor}"
+                            MaximumTrackColor="{StaticResource TextSecondary}"
+                            ThumbColor="{StaticResource PrimaryColor}" />
+                    <Label x:Name="WordCountLabel" Grid.Column="1" Text="5"
+                           TextColor="{StaticResource TextPrimary}" FontSize="16"
+                           VerticalTextAlignment="Center" FontAttributes="Bold" />
+                </Grid>
+
+                <Label Text="الفاصل" TextColor="{StaticResource TextPrimary}" FontSize="14" Margin="0,8,0,0" />
+                <Picker x:Name="SeparatorPicker"
+                        TextColor="{StaticResource TextPrimary}"
+                        TitleColor="{StaticResource TextSecondary}"
+                        Title="اختر الفاصل">
+                    <Picker.ItemsSource>
+                        <x:Array Type="{x:Type x:String}">
+                            <x:String>-</x:String>
+                            <x:String>.</x:String>
+                            <x:String>_</x:String>
+                            <x:String> </x:String>
+                            <x:String>,</x:String>
+                        </x:Array>
+                    </Picker.ItemsSource>
+                    <Picker.SelectedIndex>0</Picker.SelectedIndex>
+                </Picker>
+
+                <HorizontalStackLayout Spacing="6">
+                    <CheckBox x:Name="CapitalizeCheck" IsChecked="False"
+                              Color="{StaticResource PrimaryColor}" />
+                    <Label Text="بداية كل كلمة بحرف كبير" VerticalTextAlignment="Center"
+                           TextColor="{StaticResource TextPrimary}" FontSize="13" />
+                </HorizontalStackLayout>
+
+                <HorizontalStackLayout Spacing="6">
+                    <Label Text="اللغة:" TextColor="{StaticResource TextPrimary}" FontSize="14"
+                           VerticalTextAlignment="Center" />
+                    <Picker x:Name="LanguagePicker"
+                            TextColor="{StaticResource TextPrimary}" WidthRequest="120">
+                        <Picker.ItemsSource>
+                            <x:Array Type="{x:Type x:String}">
+                                <x:String>عربي</x:String>
+                                <x:String>English</x:String>
+                                <x:String>مختلط</x:String>
+                            </x:Array>
+                        </Picker.ItemsSource>
+                        <Picker.SelectedIndex>2</Picker.SelectedIndex>
+                    </Picker>
+                </HorizontalStackLayout>
+            </VerticalStackLayout>
+
+            <!-- Generated output -->
+            <Frame BackgroundColor="{StaticResource SurfaceColor}" CornerRadius="10"
+                   Padding="16" Margin="0,8,0,0" BorderColor="{StaticResource PrimaryColor}">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="الناتج" TextColor="{StaticResource TextSecondary}" FontSize="12" />
+                    <Label x:Name="GeneratedOutput" Text="انقر على 'توليد' لإنشاء كلمة مرور"
+                           TextColor="{StaticResource TextPrimary}" FontSize="18"
+                           FontFamily="Consolas" HorizontalTextAlignment="Center"
+                           LineBreakMode="CharacterWrap" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Action buttons -->
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="12" Margin="0,8,0,0">
+                <Button Text="توليد" Clicked="OnGenerateClicked"
+                        BackgroundColor="{StaticResource PrimaryColor}"
+                        TextColor="White" CornerRadius="10"
+                        HeightRequest="48" FontSize="16" FontAttributes="Bold" />
+                <Button Text="نسخ" Grid.Column="1" Clicked="OnCopyClicked"
+                        BackgroundColor="{StaticResource SurfaceColor}"
+                        TextColor="{StaticResource PrimaryColor}"
+                        CornerRadius="10" HeightRequest="48" FontSize="16" />
+            </Grid>
+
+            <Button Text="استخدام" Clicked="OnUseClicked"
+                    BackgroundColor="{StaticResource SuccessColor}"
+                    TextColor="White" CornerRadius="10"
+                    HeightRequest="48" FontSize="16" FontAttributes="Bold" />
+
+            <Button Text="إلغاء" Clicked="OnCancelClicked"
+                    BackgroundColor="Transparent"
+                    TextColor="{StaticResource TextSecondary}"
+                    FontSize="14" Margin="0,8,0,24" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

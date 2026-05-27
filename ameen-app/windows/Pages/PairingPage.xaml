@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Ameen.Windows.Pages.PairingPage"
+             Title="تأكيد الاقتران"
+             BackgroundColor="{StaticResource BackgroundColor}">
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="16" Padding="24"
+                             VerticalOptions="Center">
+
+            <Label Text="تأكيد الاقتران"
+                   FontSize="24" FontAttributes="Bold"
+                   HorizontalTextAlignment="Center"
+                   TextColor="{StaticResource TextPrimary}" />
+
+            <Label Text="تأكد من تطابق بصمة الجهازين قبل الموافقة. هذا يحميك من هجمات الوسيط."
+                   FontSize="14"
+                   HorizontalTextAlignment="Center"
+                   TextColor="{StaticResource TextSecondary}" />
+
+            <Frame BackgroundColor="{StaticResource SurfaceColor}"
+                   CornerRadius="12" Padding="16" Margin="0,16,0,0">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="بصمة جهازك"
+                           FontSize="14" FontAttributes="Bold"
+                           HorizontalTextAlignment="Center" />
+                    <Label x:Name="OwnFingerprintLabel"
+                           FontSize="28" FontFamily="Consolas"
+                           HorizontalTextAlignment="Center"
+                           TextColor="{StaticResource PrimaryColor}" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <Frame BackgroundColor="{StaticResource SecondaryContainerColor}"
+                   CornerRadius="12" Padding="16">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="بصمة الجهاز الآخر"
+                           FontSize="14" FontAttributes="Bold"
+                           HorizontalTextAlignment="Center" />
+                    <Label x:Name="RemoteFingerprintLabel"
+                           FontSize="28" FontFamily="Consolas"
+                           HorizontalTextAlignment="Center"
+                           TextColor="{StaticResource SecondaryColor}" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <Label x:Name="StatusLabel"
+                   Text="هل البصمتان متطابقتان؟"
+                   FontSize="18"
+                   HorizontalTextAlignment="Center"
+                   TextColor="{StaticResource TextPrimary}" />
+
+            <Grid ColumnDefinitions="*,16,*" Margin="0,16,0,0">
+                <Button Grid.Column="0"
+                        Text="إلغاء"
+                        Clicked="OnCancelClicked"
+                        BackgroundColor="{StaticResource SurfaceColor}"
+                        TextColor="{StaticResource TextPrimary}" />
+                <Button Grid.Column="2"
+                        Text="نعم، البصمتان متطابقتان"
+                        Clicked="OnConfirmClicked"
+                        BackgroundColor="{StaticResource PrimaryColor}"
+                        TextColor="White" />
+            </Grid>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

@@ -1,0 +1,2215 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>أمين — Ameen</title>
+<style>
+/* =========================== RESET & VARS =========================== */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#07070c;
+  --surface:#111118;
+  --surface-elevated:#181822;
+  --surface-high:#21212e;
+  --primary:#a78bfa;
+  --primary-dim:#7c6ff7;
+  --primary-container:#272148;
+  --on-primary:#fff;
+  --on-surface:#e8e8f0;
+  --on-surface-dim:#9d9db4;
+  --on-surface-subtle:#636378;
+  --outline:#2e2e3d;
+  --outline-soft:#1e1e2a;
+  --error:#ff6b6b;
+  --error-container:#3d1a1a;
+  --success:#4ade80;
+  --warning:#fbbf24;
+  --radius-sm:8px;
+  --radius-md:12px;
+  --radius-lg:16px;
+  --radius-xl:22px;
+  --radius-full:9999px;
+  --ease:0.3s cubic-bezier(0.4,0,0.2,1);
+  --ease-spring:0.5s cubic-bezier(0.34,1.56,0.64,1);
+  --font:'Inter','Segoe UI',system-ui,-apple-system,'Helvetica Neue','Noto Sans Arabic',sans-serif;
+}
+html,body{height:100%;overflow:hidden}
+body{
+  background:var(--bg);
+  color:var(--on-surface);
+  font-family:var(--font);
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  display:flex;align-items:center;justify-content:center;
+  background-image:radial-gradient(ellipse at 50% 0%,rgba(167,139,250,0.06) 0%,transparent 70%);
+}
+
+/* =========================== APP SHELL =========================== */
+.app{
+  width:100%;max-width:480px;height:100vh;max-height:880px;
+  background:var(--surface);
+  border-radius:0;overflow:hidden;
+  position:relative;display:flex;flex-direction:column;
+  box-shadow:0 0 0 1px var(--outline-soft),0 25px 80px rgba(0,0,0,0.6);
+}
+@media(min-width:481px){
+  body{padding:12px}
+  .app{border-radius:28px;height:calc(100vh - 24px);max-height:880px}
+}
+.screen{
+  position:absolute;inset:0;display:flex;flex-direction:column;
+  opacity:0;transform:scale(0.97) translateY(8px);
+  pointer-events:none;transition:opacity 0.35s var(--ease),transform 0.35s var(--ease);
+  overflow-y:auto;overflow-x:hidden;
+}
+.screen.active{opacity:1;transform:none;pointer-events:auto}
+.screen-profiles{justify-content:center;align-items:center;padding:40px 24px;gap:32px}
+.screen-unlock{padding:32px 24px}
+.screen-vault{padding:0}
+
+/* =========================== SCROLLBAR =========================== */
+.screen::-webkit-scrollbar{width:4px}
+.screen::-webkit-scrollbar-track{background:transparent}
+.screen::-webkit-scrollbar-thumb{background:var(--outline);border-radius:4px}
+
+/* =========================== PROFILE SCREEN =========================== */
+.profile-brand{text-align:center}
+.profile-brand h1{
+  font-size:2.8rem;font-weight:800;letter-spacing:-0.02em;
+  background:linear-gradient(135deg,var(--primary),#c084fc,#818cf8);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;margin-bottom:4px;
+}
+.profile-brand .subtitle{
+  color:var(--on-surface-dim);font-size:0.95rem;font-weight:500;
+}
+.profile-brand .pw-hint{
+  margin-top:10px;font-size:0.78rem;color:var(--on-surface-subtle);
+  background:var(--surface-elevated);display:inline-block;
+  padding:5px 14px;border-radius:var(--radius-full);
+}
+.profile-brand .pw-hint code{
+  color:var(--primary-dim);font-family:inherit;font-weight:600;
+  direction:ltr;display:inline-block;
+}
+
+.profile-grid{display:flex;flex-wrap:wrap;justify-content:center;gap:20px;width:100%}
+.profile-card{
+  display:flex;flex-direction:column;align-items:center;gap:10px;
+  cursor:pointer;border:none;background:none;color:inherit;font-family:inherit;
+  padding:8px;border-radius:var(--radius-lg);transition:transform var(--ease);
+  -webkit-tap-highlight-color:transparent;
+}
+.profile-card:hover{transform:scale(1.05)}
+.profile-card:active{transform:scale(0.96)}
+.profile-card .avatar{
+  width:80px;height:80px;border-radius:var(--radius-full);
+  display:flex;align-items:center;justify-content:center;
+  font-size:2rem;font-weight:700;color:#fff;
+  border:3px solid transparent;transition:border-color var(--ease),box-shadow var(--ease);
+  position:relative;overflow:hidden;
+}
+.profile-card .avatar::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(180deg,transparent 60%,rgba(0,0,0,.25));
+}
+.profile-card:hover .avatar{
+  border-color:var(--primary-dim);
+  box-shadow:0 0 24px rgba(167,139,250,0.35);
+}
+.profile-card .name{font-size:0.9rem;font-weight:600;color:var(--on-surface-dim)}
+.profile-card .count{
+  font-size:0.72rem;color:var(--on-surface-subtle);margin-top:-6px;
+}
+
+.add-profile{
+  display:flex;flex-direction:column;align-items:center;gap:10px;
+  cursor:pointer;border:none;background:none;color:var(--on-surface-dim);
+  font-family:inherit;padding:8px;border-radius:var(--radius-lg);
+  transition:all var(--ease);-webkit-tap-highlight-color:transparent;
+}
+.add-profile:hover{color:var(--primary-dim)}
+.add-profile .add-circle{
+  width:80px;height:80px;border-radius:var(--radius-full);
+  border:2px dashed var(--outline);display:flex;align-items:center;
+  justify-content:center;font-size:2rem;transition:all var(--ease);
+}
+.add-profile:hover .add-circle{border-color:var(--primary-dim);background:var(--primary-container)}
+
+/* =========================== PROFILE CARD ACTIONS =========================== */
+.profile-card-wrapper{display:flex;flex-direction:column;align-items:center;gap:4px}
+.profile-actions{display:flex;gap:6px;opacity:0;transition:opacity var(--ease)}
+.profile-card-wrapper:hover .profile-actions{opacity:1}
+.profile-edit-btn,.profile-delete-btn{
+  width:28px;height:28px;border-radius:var(--radius-full);
+  border:1px solid var(--outline-soft);background:var(--surface-high);
+  color:var(--on-surface-subtle);font-size:0.75rem;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:all var(--ease);-webkit-tap-highlight-color:transparent;
+}
+.profile-edit-btn:hover{background:var(--primary-container);color:var(--primary-dim);border-color:var(--primary-dim)}
+.profile-delete-btn:hover{background:var(--error-container);color:var(--error);border-color:var(--error)}
+.consent-notice{
+  background:var(--error-container);border:1px solid var(--error);
+  border-radius:var(--radius-sm);padding:12px;margin-bottom:14px;
+  color:var(--error);font-size:0.82rem;
+}
+.profile-badge{
+  font-size:0.68rem;margin-top:4px;padding:2px 8px;
+  border-radius:var(--radius-full);background:var(--surface-high);
+  color:var(--on-surface-subtle);
+}
+
+/* =========================== UNLOCK SCREEN =========================== */
+.unlock-header{display:flex;align-items:center;gap:12px;margin-bottom:32px}
+.back-btn{
+  width:40px;height:40px;border-radius:var(--radius-full);border:none;
+  background:var(--surface-elevated);color:var(--on-surface-dim);
+  font-size:1.2rem;cursor:pointer;display:flex;align-items:center;
+  justify-content:center;transition:all var(--ease);
+  flex-shrink:0;
+}
+.back-btn:hover{background:var(--surface-high);color:var(--on-surface)}
+
+.unlock-avatar-area{display:flex;flex-direction:column;align-items:center;gap:12px;margin-bottom:28px}
+.unlock-avatar{
+  width:72px;height:72px;border-radius:var(--radius-full);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.8rem;font-weight:700;color:#fff;
+}
+.unlock-name{font-size:1.3rem;font-weight:700}
+
+.input-group{position:relative;margin-bottom:8px}
+.input-group input{
+  width:100%;padding:14px 16px;padding-left:48px;
+  background:var(--surface-elevated);border:1.5px solid var(--outline);
+  border-radius:var(--radius-md);font-size:1rem;font-family:var(--font);
+  color:var(--on-surface);transition:all var(--ease);outline:none;
+  direction:ltr;text-align:left;
+}
+.input-group input:focus{border-color:var(--primary-dim);box-shadow:0 0 0 3px rgba(167,139,250,0.15)}
+.input-group input::placeholder{color:var(--on-surface-subtle)}
+.eye-toggle{
+  position:absolute;left:4px;top:50%;transform:translateY(-50%);
+  width:36px;height:36px;border:none;background:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  color:var(--on-surface-subtle);border-radius:var(--radius-full);
+  transition:all var(--ease);padding:0;
+}
+.eye-toggle:hover{color:var(--on-surface-dim);background:var(--surface-high)}
+
+/* =========================== STRENGTH METER =========================== */
+.strength-meter{
+  display:flex;align-items:center;gap:8px;margin-bottom:8px;
+  overflow:hidden;opacity:0;max-height:0;
+  transition:opacity 0.3s var(--ease),max-height 0.35s var(--ease),margin 0.3s var(--ease);
+}
+.strength-meter.visible{opacity:1;max-height:32px}
+.strength-bar{
+  flex:1;height:4px;border-radius:2px;background:var(--surface-high);
+  transition:all 0.3s var(--ease);width:0%;
+}
+.strength-label{font-size:0.78rem;font-weight:600;white-space:nowrap}
+
+.unlock-error{
+  color:var(--error);font-size:0.82rem;min-height:20px;
+  text-align:center;margin:4px 0 12px;opacity:0;transition:opacity 0.2s;
+}
+.unlock-error.visible{opacity:1}
+
+.btn-primary{
+  width:100%;padding:15px;border:none;border-radius:var(--radius-xl);
+  background:var(--primary-dim);color:var(--on-primary);
+  font-size:1rem;font-weight:600;font-family:var(--font);
+  cursor:pointer;transition:all var(--ease);position:relative;
+  overflow:hidden;-webkit-tap-highlight-color:transparent;
+}
+.btn-primary:hover{background:var(--primary);box-shadow:0 4px 20px rgba(124,111,247,0.4)}
+.btn-primary:active{transform:scale(0.98)}
+.btn-primary:disabled{opacity:0.5;pointer-events:none}
+
+.btn-spinner{
+  display:none;width:20px;height:20px;border:2px solid rgba(255,255,255,0.3);
+  border-top-color:#fff;border-radius:50%;animation:spin 0.6s linear infinite;
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+}
+@keyframes spin{to{transform:translate(-50%,-50%) rotate(360deg)}}
+.btn-primary.loading .btn-label{visibility:hidden}
+.btn-primary.loading .btn-spinner{display:block}
+
+/* =========================== VAULT SCREEN =========================== */
+.vault-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 20px;border-bottom:1px solid var(--outline-soft);
+  position:sticky;top:0;background:var(--surface);z-index:10;
+  backdrop-filter:blur(12px);
+}
+.vault-user{display:flex;align-items:center;gap:10px}
+.vault-user .v-avatar{
+  width:36px;height:36px;border-radius:var(--radius-full);
+  display:flex;align-items:center;justify-content:center;
+  font-size:0.9rem;font-weight:700;color:#fff;flex-shrink:0;
+}
+.vault-user .v-name{font-weight:700;font-size:1.05rem}
+.lock-btn{
+  display:flex;align-items:center;gap:6px;padding:8px 16px;
+  border-radius:var(--radius-full);border:1px solid var(--outline);
+  background:var(--surface-elevated);color:var(--on-surface-dim);
+  font-size:0.82rem;font-weight:600;cursor:pointer;
+  font-family:var(--font);transition:all var(--ease);
+}
+.lock-btn:hover{background:var(--error-container);border-color:var(--error);color:var(--error)}
+.lock-btn svg{width:16px;height:16px}
+
+.stats-bar{
+  display:flex;gap:8px;padding:12px 20px;overflow-x:auto;
+  scrollbar-width:none;
+}
+.stats-bar::-webkit-scrollbar{display:none}
+.stat-chip{
+  display:flex;align-items:center;gap:8px;padding:10px 16px;
+  background:var(--surface-elevated);border-radius:var(--radius-lg);
+  border:1px solid var(--outline-soft);flex-shrink:0;
+  min-width:90px;justify-content:center;
+}
+.stat-chip .stat-num{font-size:1.3rem;font-weight:800;color:var(--primary-dim)}
+.stat-chip .stat-label{font-size:0.78rem;color:var(--on-surface-subtle)}
+
+.tab-bar{
+  display:flex;padding:0 20px;gap:0;border-bottom:1px solid var(--outline-soft);
+  position:sticky;top:76px;background:var(--surface);z-index:9;
+}
+.tab-btn{
+  flex:1;padding:12px 8px;border:none;background:none;
+  color:var(--on-surface-subtle);font-size:0.85rem;font-weight:600;
+  font-family:var(--font);cursor:pointer;position:relative;
+  transition:color var(--ease);-webkit-tap-highlight-color:transparent;
+  white-space:nowrap;
+}
+.tab-btn::after{
+  content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);
+  width:0;height:2px;background:var(--primary-dim);border-radius:2px 2px 0 0;
+  transition:width var(--ease);
+}
+.tab-btn.active{color:var(--on-surface)}
+.tab-btn.active::after{width:60%}
+.tab-btn .tab-badge{
+  display:inline-block;background:var(--surface-high);color:var(--on-surface-dim);
+  font-size:0.72rem;padding:1px 8px;border-radius:var(--radius-full);
+  margin-right:6px;vertical-align:middle;
+}
+
+.search-bar{padding:12px 20px}
+.search-bar input{
+  width:100%;padding:10px 16px;padding-right:40px;
+  background:var(--surface-elevated);border:1px solid var(--outline-soft);
+  border-radius:var(--radius-full);font-size:0.9rem;font-family:var(--font);
+  color:var(--on-surface);outline:none;transition:all var(--ease);
+}
+.search-bar input:focus{border-color:var(--primary-dim)}
+.search-bar input::placeholder{color:var(--on-surface-subtle)}
+.search-bar .search-icon{
+  position:absolute;right:36px;top:50%;transform:translateY(-50%);
+  color:var(--on-surface-subtle);pointer-events:none;
+}
+.search-wrapper{position:relative}
+.search-clear-btn{
+  position:absolute;left:8px;top:50%;transform:translateY(-50%);
+  width:28px;height:28px;border-radius:var(--radius-full);border:none;
+  background:var(--surface-high);color:var(--on-surface-subtle);
+  cursor:pointer;display:none;align-items:center;justify-content:center;
+  font-size:0.85rem;transition:all var(--ease);
+}
+.search-clear-btn:hover{background:var(--outline);color:var(--on-surface)}
+.search-clear-btn.visible{display:flex}
+
+.vault-list{padding:0 20px 100px;display:flex;flex-direction:column;gap:8px}
+.vault-item{
+  background:var(--surface-elevated);border:1px solid var(--outline-soft);
+  border-radius:var(--radius-md);overflow:hidden;
+  transition:all var(--ease);cursor:pointer;
+}
+.vault-item:hover{border-color:var(--outline);box-shadow:0 2px 12px rgba(0,0,0,0.3)}
+.vault-item-summary{
+  display:flex;align-items:center;padding:14px 16px;gap:12px;
+}
+.item-icon{
+  width:40px;height:40px;border-radius:var(--radius-md);
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;font-size:1.2rem;
+}
+.item-icon.password{background:rgba(167,139,250,0.15);color:var(--primary-dim)}
+.item-icon.note{background:rgba(251,191,36,0.15);color:var(--warning)}
+.item-icon.card{background:rgba(74,222,128,0.15);color:var(--success)}
+
+.item-info{flex:1;min-width:0}
+.item-title{font-weight:600;font-size:0.95rem;line-height:1.3}
+.item-meta{font-size:0.78rem;color:var(--on-surface-subtle);margin-top:2px;direction:ltr;text-align:right}
+.item-copy{
+  width:34px;height:34px;border-radius:var(--radius-full);border:none;
+  background:var(--surface-high);color:var(--on-surface-dim);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;transition:all var(--ease);
+}
+.item-copy:hover{background:var(--primary-container);color:var(--primary-dim)}
+.item-edit-btn,.item-delete-btn{
+  width:34px;height:34px;border-radius:var(--radius-full);border:none;
+  background:var(--surface-high);color:var(--on-surface-dim);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;transition:all var(--ease);font-size:0.95rem;
+}
+.item-edit-btn:hover{background:var(--primary-container);color:var(--primary-dim)}
+.item-delete-btn:hover{background:var(--error-container);color:var(--error)}
+
+.item-details{
+  display:none;padding:0 16px 16px;border-top:1px solid var(--outline-soft);
+  flex-direction:column;gap:10px;padding-top:14px;
+}
+.vault-item.expanded .item-details{display:flex}
+.vault-item.expanded{border-color:var(--outline);box-shadow:0 4px 20px rgba(0,0,0,0.35)}
+.vault-item.expanded .item-icon{border-radius:var(--radius-sm)}
+
+.detail-row{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.detail-label{font-size:0.78rem;color:var(--on-surface-subtle);flex-shrink:0}
+.detail-value{
+  font-family:'SF Mono','Fira Code','Cascadia Code',monospace;
+  font-size:0.85rem;color:var(--on-surface);text-align:left;direction:ltr;
+  word-break:break-all;flex:1;text-align:right;
+}
+.detail-value.masked{-webkit-text-security:disc;text-security:disc}
+.detail-actions{display:flex;gap:6px;flex-shrink:0}
+.detail-btn{
+  padding:5px 10px;border-radius:var(--radius-sm);border:1px solid var(--outline);
+  background:var(--surface-high);color:var(--on-surface-dim);
+  font-size:0.75rem;cursor:pointer;font-family:var(--font);
+  transition:all var(--ease);white-space:nowrap;
+}
+.detail-btn:hover{background:var(--primary-container);color:var(--primary-dim);border-color:var(--primary-dim)}
+
+.empty-state{
+  text-align:center;padding:40px 20px;color:var(--on-surface-subtle);
+}
+.empty-state .empty-icon{font-size:3rem;margin-bottom:12px;opacity:0.5}
+.empty-state p{font-size:0.9rem}
+
+/* =========================== FAB =========================== */
+.fab{
+  position:absolute;bottom:24px;left:24px;right:24px;
+  z-index:20;display:flex;justify-content:flex-end;pointer-events:none;
+}
+@media(min-width:481px){
+  .fab{left:50%;right:auto;transform:translateX(-50%);width:calc(480px - 48px)}
+}
+.fab-btn{
+  width:56px;height:56px;border-radius:var(--radius-full);border:none;
+  background:var(--primary-dim);color:var(--on-primary);
+  font-size:1.6rem;cursor:pointer;display:flex;align-items:center;
+  justify-content:center;box-shadow:0 6px 24px rgba(124,111,247,0.45);
+  transition:all var(--ease);pointer-events:auto;
+}
+.fab-btn:hover{transform:scale(1.08);background:var(--primary);box-shadow:0 8px 32px rgba(167,139,250,0.55)}
+.fab-btn:active{transform:scale(0.94)}
+
+/* =========================== MODAL =========================== */
+.modal-overlay{
+  position:fixed;inset:0;z-index:100;background:rgba(0,0,0,0.7);
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity 0.25s var(--ease);
+  backdrop-filter:blur(4px);
+}
+.modal-overlay.visible{opacity:1;pointer-events:auto}
+.modal{
+  background:var(--surface-high);border:1px solid var(--outline);
+  border-radius:var(--radius-xl);padding:24px;width:90%;max-width:400px;
+  max-height:80vh;overflow-y:auto;transform:translateY(20px);
+  transition:transform 0.3s var(--ease);
+}
+.modal-overlay.visible .modal{transform:translateY(0)}
+.modal h3{font-size:1.2rem;font-weight:700;margin-bottom:20px}
+.modal-field{margin-bottom:14px}
+.modal-field label{display:block;font-size:0.82rem;color:var(--on-surface-dim);margin-bottom:4px}
+.modal-field input,.modal-field select,.modal-field textarea{
+  width:100%;padding:10px 12px;background:var(--surface-elevated);
+  border:1px solid var(--outline);border-radius:var(--radius-sm);
+  font-size:0.9rem;font-family:var(--font);color:var(--on-surface);
+  outline:none;transition:all var(--ease);resize:vertical;
+}
+.modal-field input:focus,.modal-field select:focus,.modal-field textarea:focus{
+  border-color:var(--primary-dim);
+}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:20px}
+.modal-actions button{
+  padding:10px 20px;border-radius:var(--radius-full);border:none;
+  font-size:0.9rem;font-weight:600;cursor:pointer;font-family:var(--font);
+  transition:all var(--ease);
+}
+.modal-cancel{background:var(--surface-elevated);color:var(--on-surface-dim);border:1px solid var(--outline)}
+.modal-cancel:hover{background:var(--surface);color:var(--on-surface)}
+.modal-save{background:var(--primary-dim);color:var(--on-primary)}
+.modal-save:hover{background:var(--primary)}
+
+/* =========================== TOAST =========================== */
+.toast{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);
+  background:var(--surface-high);color:var(--on-surface);
+  padding:12px 24px;border-radius:var(--radius-full);
+  font-size:0.85rem;font-weight:600;z-index:200;
+  border:1px solid var(--outline);box-shadow:0 8px 32px rgba(0,0,0,0.5);
+  transition:transform 0.35s var(--ease-spring);pointer-events:none;
+  white-space:nowrap;
+}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.toast.success{border-color:var(--success);color:var(--success)}
+.toast.error{border-color:var(--error);color:var(--error)}
+.toast.warning{border-color:var(--warning);color:var(--warning)}
+
+/* =========================== LOADING OVERLAY =========================== */
+.init-loader{
+  position:fixed;inset:0;z-index:300;background:var(--bg);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:16px;transition:opacity 0.4s var(--ease);
+}
+.init-loader.hidden{opacity:0;pointer-events:none}
+.init-loader .loader-ring{
+  width:40px;height:40px;border:3px solid var(--outline);
+  border-top-color:var(--primary-dim);border-radius:50%;
+  animation:spin 0.8s linear infinite;
+}
+.init-loader p{color:var(--on-surface-dim);font-size:0.9rem}
+
+/* =========================== RESPONSIVE =========================== */
+@media(max-width:380px){
+  .profile-card .avatar{width:68px;height:68px;font-size:1.6rem}
+  .profile-grid{gap:14px}
+  .vault-header{padding:12px 16px}
+  .stats-bar{padding:8px 16px}
+  .tab-bar{padding:0 16px}
+  .vault-list{padding:0 16px 100px}
+}
+@media(min-height:900px){
+  .screen-profiles{gap:40px}
+}
+
+/* =========================== SVG ICONS =========================== */
+.icon-sm{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.icon-inline{display:inline-block;vertical-align:middle}
+
+/* =========================== RECOVERY =========================== */
+.recovery-entry-btn{
+  display:flex;flex-direction:column;align-items:center;gap:10px;
+  cursor:pointer;border:none;background:none;color:var(--on-surface-dim);
+  font-family:inherit;padding:8px;border-radius:var(--radius-lg);
+  transition:all var(--ease);-webkit-tap-highlight-color:transparent;
+}
+.recovery-entry-btn:hover{color:var(--primary-dim)}
+.recovery-entry-btn .recovery-circle{
+  width:80px;height:80px;border-radius:var(--radius-full);
+  border:2px dashed var(--outline);display:flex;align-items:center;
+  justify-content:center;font-size:2rem;transition:all var(--ease);
+}
+.recovery-entry-btn:hover .recovery-circle{border-color:var(--primary-dim);background:var(--primary-container)}
+.recovery-entry-btn.disabled{opacity:0.35;pointer-events:none}
+
+.recovery-child-card{
+  display:flex;align-items:center;gap:12px;padding:12px 14px;
+  background:var(--surface-elevated);border:1.5px solid var(--outline-soft);
+  border-radius:var(--radius-md);cursor:pointer;transition:all var(--ease);
+}
+.recovery-child-card:hover{border-color:var(--outline);background:var(--surface-high)}
+.recovery-child-card.selected{border-color:var(--primary-dim);background:var(--primary-container)}
+.recovery-child-card .rc-avatar{
+  width:40px;height:40px;border-radius:var(--radius-full);
+  display:flex;align-items:center;justify-content:center;
+  font-weight:700;color:#fff;flex-shrink:0;
+}
+.recovery-child-card .rc-info{flex:1;min-width:0}
+.recovery-child-card .rc-name{font-weight:600;font-size:0.9rem}
+.recovery-child-card .rc-label{font-size:0.75rem;color:var(--on-surface-subtle)}
+
+.audit-log-panel{max-height:300px;overflow-y:auto;margin-bottom:12px}
+.audit-entry{
+  display:flex;flex-direction:column;gap:2px;padding:10px 12px;
+  background:var(--surface-elevated);border:1px solid var(--outline-soft);
+  border-radius:var(--radius-sm);margin-bottom:6px;
+}
+.audit-entry .ae-header{display:flex;align-items:center;gap:8px;font-size:0.8rem}
+.audit-entry .ae-action{font-weight:600;color:var(--on-surface)}
+.audit-entry .ae-time{color:var(--on-surface-subtle);font-size:0.72rem;margin-right:auto}
+.audit-entry .ae-desc{font-size:0.78rem;color:var(--on-surface-dim);margin-top:2px}
+.audit-empty{text-align:center;padding:24px;color:var(--on-surface-subtle);font-size:0.85rem}
+mark.search-highlight{
+  background:rgba(167,139,250,0.3);
+  color:var(--primary);
+  border-radius:3px;
+  padding:0 2px;
+}
+
+/* =========================== GENERATOR =========================== */
+.gen-tab-btn{
+  flex:1;padding:8px;border:none;background:transparent;color:var(--on-surface-dim);
+  font-family:var(--font);font-size:0.85rem;cursor:pointer;border-radius:6px;transition:all var(--ease)
+}
+.gen-tab-btn.active{background:var(--surface-elevated);color:var(--on-surface)}
+.gen-toggle{
+  display:flex;align-items:center;gap:6px;font-size:0.82rem;color:var(--on-surface-dim);
+  background:var(--surface);padding:6px 12px;border-radius:var(--radius-full);cursor:pointer;
+  border:1px solid var(--outline-soft);transition:all var(--ease)
+}
+.gen-toggle:has(input:checked){color:var(--primary);border-color:var(--primary);background:rgba(167,139,250,0.1)}
+.gen-toggle input{width:auto;margin:0;accent-color:var(--primary)}
+#gen-result{font-family:'Courier New',monospace;letter-spacing:0.03em}
+.gen-trigger-btn:hover{background:var(--primary-container)!important;color:var(--primary-dim)!important;border-color:var(--primary-dim)!important}
+
+/* =========================== TOTP =========================== */
+.otp-code{font-family:'SF Mono','Fira Code','Courier New',monospace;font-size:1.15rem;letter-spacing:0.2em;direction:ltr;text-align:right}
+.otp-timer{font-size:0.75rem;color:var(--on-surface-subtle);min-width:24px;text-align:right}
+.otp-timer.expiring{color:var(--error);font-weight:700}
+
+/* =========================== HEALTH =========================== */
+.health-score-circle{transition:background-color 0.6s var(--ease),border-color 0.6s var(--ease),color 0.6s var(--ease)}
+.health-finding{background:var(--surface-elevated);border:1px solid var(--outline-soft);border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:8px;font-size:0.82rem}
+.health-finding .hf-title{font-weight:600;color:var(--on-surface);margin-bottom:4px}
+.health-finding .hf-item{color:var(--on-surface-dim);padding:2px 0;font-size:0.8rem}
+.health-finding.weak{border-right:3px solid var(--error)}
+.health-finding.duplicate{border-right:3px solid var(--warning)}
+.health-finding.clean{border-right:3px solid var(--success)}
+.health-finding .hf-action{display:inline-block;margin-top:4px;font-size:0.75rem;color:var(--primary-dim);cursor:pointer;text-decoration:underline}
+.health-finding .hf-action:hover{color:var(--primary)}
+</style>
+</head>
+<body>
+
+<div class="app" id="app">
+  <!-- ============ SCREEN 1: PROFILES ============ -->
+  <div class="screen screen-profiles active" id="screen-profiles">
+    <div class="profile-brand">
+      <h1>أمين</h1>
+      <p class="subtitle">Ameen — مدير كلمات المرور</p>
+      <p class="pw-hint">🔑 كلمة المرور الافتراضية: <code>ameen123</code></p>
+    </div>
+    <div class="profile-grid" id="profile-grid"></div>
+  </div>
+
+  <!-- ============ SCREEN 2: UNLOCK ============ -->
+  <div class="screen screen-unlock" id="screen-unlock">
+    <div class="unlock-header">
+      <button class="back-btn" id="unlock-back" aria-label="رجوع">
+        <svg class="icon-sm" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+    </div>
+    <div class="unlock-avatar-area">
+      <div class="unlock-avatar" id="unlock-avatar"></div>
+      <div class="unlock-name" id="unlock-name"></div>
+    </div>
+    <div class="input-group">
+      <input type="password" id="master-password" placeholder="كلمة المرور الرئيسية" autocomplete="off">
+      <button class="eye-toggle" id="eye-toggle" aria-label="إظهار كلمة المرور">
+        <svg class="icon-sm" viewBox="0 0 24 24" id="eye-off-icon"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+        <svg class="icon-sm" viewBox="0 0 24 24" id="eye-on-icon" style="display:none"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+      </button>
+    </div>
+    <div class="strength-meter" id="strength-meter" style="display:none">
+      <div class="strength-bar" id="strength-bar"></div>
+      <span class="strength-label" id="strength-label"></span>
+    </div>
+    <p class="unlock-error" id="unlock-error"></p>
+    <button class="btn-primary" id="unlock-btn">
+      <span class="btn-label">🔓 فتح الخزنة</span>
+      <span class="btn-spinner"></span>
+    </button>
+  </div>
+
+  <!-- ============ SCREEN 3: VAULT ============ -->
+  <div class="screen screen-vault" id="screen-vault">
+    <div class="vault-header">
+      <div class="vault-user">
+        <div class="v-avatar" id="vault-avatar"></div>
+        <span class="v-name" id="vault-name"></span>
+      </div>
+      <button class="lock-btn" id="lock-btn">
+        <svg class="icon-sm" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+        قفل
+      </button>
+    </div>
+    <div class="stats-bar" id="stats-bar"></div>
+    <button id="health-btn" style="display:block;width:calc(100% - 40px);margin:8px 20px;background:var(--surface-elevated);border:1px solid var(--outline-soft);border-radius:var(--radius-sm);padding:6px 12px;color:var(--on-surface-dim);font-family:var(--font);font-size:0.8rem;cursor:pointer">🩺 صحة كلمات المرور</button>
+    <div class="tab-bar" id="tab-bar">
+      <button class="tab-btn active" data-tab="all">الكل</button>
+      <button class="tab-btn" data-tab="password">🔑 كلمات المرور</button>
+      <button class="tab-btn" data-tab="note">📝 ملاحظات</button>
+      <button class="tab-btn" data-tab="card">💳 بطاقات</button>
+    </div>
+    <div class="search-bar">
+      <div class="search-wrapper">
+        <svg class="icon-sm search-icon" viewBox="0 0 24 24" style="position:absolute;right:16px;top:50%;transform:translateY(-50%);color:var(--on-surface-subtle)"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        <input type="text" id="vault-search" placeholder="بحث في الخزنة..." style="padding-right:42px;padding-left:36px">
+        <button class="search-clear-btn" id="search-clear-btn" title="مسح البحث">&#10005;</button>
+      </div>
+    </div>
+    <div class="vault-list" id="vault-list"></div>
+    <div class="fab">
+      <button class="fab-btn" id="fab-btn" aria-label="إضافة عنصر جديد">+</button>
+    </div>
+  </div>
+
+  <!-- ============ ADD ITEM MODAL ============ -->
+  <div class="modal-overlay" id="add-modal-overlay">
+    <div class="modal" id="add-modal">
+      <h3>إضافة عنصر جديد</h3>
+      <div class="modal-field">
+        <label>النوع</label>
+        <select id="add-type">
+          <option value="password">🔑 كلمة مرور</option>
+          <option value="note">📝 ملاحظة</option>
+          <option value="card">💳 بطاقة</option>
+        </select>
+      </div>
+      <div class="modal-field"><label>العنوان</label><input type="text" id="add-title" placeholder="مثال: فيسبوك"></div>
+      <div id="add-password-fields">
+        <div class="modal-field"><label>اسم المستخدم</label><input type="text" id="add-username" placeholder="example@email.com" dir="ltr"></div>
+        <div class="modal-field"><label>كلمة المرور</label><div style="display:flex;gap:6px"><input type="text" id="add-password" placeholder="كلمة المرور" dir="ltr" style="flex:1"><button type="button" class="gen-trigger-btn" onclick="openGenerator('add-password')" style="flex-shrink:0;width:36px;height:36px;border:none;background:var(--surface-elevated);border:1px solid var(--outline);border-radius:var(--radius-sm);cursor:pointer;font-size:1.1rem;color:var(--on-surface-dim)" title="توليد كلمة مرور">🎲</button></div></div>
+        <div class="modal-field"><label>رمز OTP (اختياري)</label><input type="text" id="add-otp-secret" placeholder="مفتاح OTP أو رابط otpauth://" dir="ltr"></div>
+        <div class="modal-field"><label>الرابط</label><input type="text" id="add-url" placeholder="example.com" dir="ltr"></div>
+      </div>
+      <div id="add-note-fields" style="display:none">
+        <div class="modal-field"><label>المحتوى</label><textarea id="add-content" rows="3" placeholder="محتوى الملاحظة..."></textarea></div>
+      </div>
+      <div id="add-card-fields" style="display:none">
+        <div class="modal-field"><label>اسم حامل البطاقة</label><input type="text" id="add-cardholder" placeholder="الاسم على البطاقة"></div>
+        <div class="modal-field"><label>رقم البطاقة</label><input type="text" id="add-number" placeholder="0000 0000 0000 0000" dir="ltr"></div>
+        <div class="modal-field"><label>تاريخ الانتهاء</label><input type="text" id="add-expiry" placeholder="MM/YY" dir="ltr"></div>
+        <div class="modal-field"><label>رمز CVV</label><input type="text" id="add-cvv" placeholder="123" dir="ltr"></div>
+      </div>
+      <div class="modal-field"><label>ملاحظات</label><input type="text" id="add-notes" placeholder="ملاحظات إضافية..."></div>
+      <div class="modal-actions">
+        <button class="modal-cancel" id="modal-cancel">إلغاء</button>
+        <button class="modal-save" id="modal-save">حفظ</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ EDIT ITEM MODAL ============ -->
+  <div class="modal-overlay" id="edit-modal-overlay">
+    <div class="modal" id="edit-modal">
+      <h3>تعديل العنصر</h3>
+      <div class="modal-field">
+        <label>النوع</label>
+        <select id="edit-type">
+          <option value="password">🔑 كلمة مرور</option>
+          <option value="note">📝 ملاحظة</option>
+          <option value="card">💳 بطاقة</option>
+        </select>
+      </div>
+      <div class="modal-field"><label>العنوان</label><input type="text" id="edit-title" placeholder="مثال: فيسبوك"></div>
+      <div id="edit-password-fields">
+        <div class="modal-field"><label>اسم المستخدم</label><input type="text" id="edit-username" placeholder="example@email.com" dir="ltr"></div>
+        <div class="modal-field"><label>كلمة المرور</label><div style="display:flex;gap:6px"><input type="text" id="edit-password" placeholder="كلمة المرور" dir="ltr" style="flex:1"><button type="button" class="gen-trigger-btn" onclick="openGenerator('edit-password')" style="flex-shrink:0;width:36px;height:36px;border:none;background:var(--surface-elevated);border:1px solid var(--outline);border-radius:var(--radius-sm);cursor:pointer;font-size:1.1rem;color:var(--on-surface-dim)" title="توليد كلمة مرور">🎲</button></div></div>
+        <div class="modal-field"><label>رمز OTP (اختياري)</label><input type="text" id="edit-otp-secret" placeholder="مفتاح OTP أو رابط otpauth://" dir="ltr"></div>
+        <div class="modal-field"><label>الرابط</label><input type="text" id="edit-url" placeholder="example.com" dir="ltr"></div>
+      </div>
+      <div id="edit-note-fields" style="display:none">
+        <div class="modal-field"><label>المحتوى</label><textarea id="edit-content" rows="3" placeholder="محتوى الملاحظة..."></textarea></div>
+      </div>
+      <div id="edit-card-fields" style="display:none">
+        <div class="modal-field"><label>اسم حامل البطاقة</label><input type="text" id="edit-cardholder" placeholder="الاسم على البطاقة"></div>
+        <div class="modal-field"><label>رقم البطاقة</label><input type="text" id="edit-number" placeholder="0000 0000 0000 0000" dir="ltr"></div>
+        <div class="modal-field"><label>تاريخ الانتهاء</label><input type="text" id="edit-expiry" placeholder="MM/YY" dir="ltr"></div>
+        <div class="modal-field"><label>رمز CVV</label><input type="text" id="edit-cvv" placeholder="123" dir="ltr"></div>
+      </div>
+      <div class="modal-field"><label>ملاحظات</label><input type="text" id="edit-notes" placeholder="ملاحظات إضافية..."></div>
+      <div class="modal-actions">
+        <button class="modal-cancel" id="edit-modal-cancel">إلغاء</button>
+        <button class="modal-save" id="edit-modal-save">حفظ</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ PASSWORD GENERATOR MODAL ============ -->
+  <div class="modal-overlay" id="generator-modal-overlay">
+    <div class="modal" id="generator-modal" style="max-width:420px">
+      <h3>مولد كلمات المرور</h3>
+      <div class="gen-tabs" style="display:flex;gap:4px;margin-bottom:16px;background:var(--surface);border-radius:var(--radius-sm);padding:4px">
+        <button class="gen-tab-btn active" data-gen="password">🔑 كلمة مرور</button>
+        <button class="gen-tab-btn" data-gen="passphrase">📝 عبارة مرور</button>
+      </div>
+      <div id="gen-password-panel">
+        <div class="modal-field"><label>الطول: <span id="gen-length-val">20</span></label><input type="range" id="gen-length" min="8" max="64" value="20"></div>
+        <div class="gen-toggles" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px">
+          <label class="gen-toggle"><input type="checkbox" id="gen-upper" checked> أحرف كبيرة</label>
+          <label class="gen-toggle"><input type="checkbox" id="gen-lower" checked> أحرف صغيرة</label>
+          <label class="gen-toggle"><input type="checkbox" id="gen-digits" checked> أرقام</label>
+          <label class="gen-toggle"><input type="checkbox" id="gen-symbols" checked> رموز</label>
+          <label class="gen-toggle"><input type="checkbox" id="gen-ambiguous"> استبعاد المتشابهة</label>
+        </div>
+      </div>
+      <div id="gen-passphrase-panel" style="display:none">
+        <div class="modal-field"><label>عدد الكلمات: <span id="gen-wc-val">6</span></label><input type="range" id="gen-wordcount" min="4" max="10" value="6"></div>
+        <div class="modal-field"><label>الفاصل</label>
+          <select id="gen-separator"><option value="-">- شرطة</option><option value=" ">مسافة</option><option value=".">نقطة</option><option value="">بدون فاصل</option></select>
+        </div>
+        <div style="margin-bottom:12px"><label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="gen-capitalize"> تكبير أول حرف من كل كلمة</label></div>
+      </div>
+      <div class="gen-output" style="background:var(--surface);border:1px solid var(--outline);border-radius:var(--radius-sm);padding:12px;margin-bottom:12px;display:flex;align-items:center;gap:8px">
+        <span id="gen-result" style="flex:1;font-family:'Courier New',monospace;direction:ltr;text-align:right;font-size:1.05rem;word-break:break-all">—</span>
+        <button id="gen-copy-btn" style="flex-shrink:0;padding:6px 12px;border:none;background:var(--surface-elevated);border:1px solid var(--outline);border-radius:var(--radius-sm);color:var(--on-surface-dim);font-family:var(--font);font-size:0.8rem;cursor:pointer">نسخ</button>
+      </div>
+      <div class="gen-strength" style="margin-bottom:14px">
+        <div style="height:4px;background:var(--surface);border-radius:2px;overflow:hidden"><div id="gen-strength-bar" style="height:100%;width:0;transition:width 0.3s"></div></div>
+        <span id="gen-strength-label" style="font-size:0.78rem;margin-top:4px;display:inline-block"></span>
+      </div>
+      <div class="modal-actions">
+        <button class="modal-cancel" id="gen-cancel">إغلاق</button>
+        <button class="modal-save" id="gen-use-btn">استخدام</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ PASSWORD HEALTH MODAL ============ -->
+  <div class="modal-overlay" id="health-modal-overlay">
+    <div class="modal" id="health-modal" style="max-width:440px">
+      <h3>صحة كلمات المرور</h3>
+      <div class="health-score" style="text-align:center;margin-bottom:16px">
+        <div class="health-score-circle" id="health-score-circle" style="width:80px;height:80px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:1.6rem;font-weight:700;border:3px solid">—</div>
+        <div id="health-score-label" style="margin-top:8px;font-size:0.85rem"></div>
+      </div>
+      <div id="health-findings" style="max-height:280px;overflow-y:auto"></div>
+      <div class="modal-actions">
+        <button class="modal-cancel" id="health-cancel">إغلاق</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ EDIT PROFILE MODAL ============ -->
+  <div class="modal-overlay" id="edit-profile-modal-overlay">
+    <div class="modal" id="edit-profile-modal">
+      <h3>تعديل الحساب</h3>
+      <div class="modal-field"><label>الاسم</label><input type="text" id="edit-profile-name" placeholder="اسم الحساب"></div>
+      <div class="modal-field"><label>الحرف الأول</label><input type="text" id="edit-profile-initial" maxlength="1" placeholder="مثال: أ"></div>
+      <div class="modal-field"><label>اللون</label><input type="color" id="edit-profile-color" style="width:100%;height:40px;border:none;background:var(--surface-elevated);cursor:pointer"></div>
+      <div class="modal-actions">
+        <button class="modal-cancel" id="edit-profile-cancel">إلغاء</button>
+        <button class="modal-save" id="edit-profile-save">حفظ</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ ADD PROFILE MODAL ============ -->
+  <div class="modal-overlay" id="add-profile-modal-overlay">
+    <div class="modal" id="add-profile-modal">
+      <h3>إضافة حساب جديد</h3>
+      <div class="modal-field"><label>الاسم</label><input type="text" id="add-profile-name" placeholder="اسم الحساب"></div>
+      <div class="modal-field" style="display:flex;align-items:center;gap:8px">
+        <input type="checkbox" id="add-profile-is-child" style="width:auto">
+        <label for="add-profile-is-child" style="margin:0;cursor:pointer">هذا حساب طفل (تحت الإشراف)</label>
+      </div>
+      <div class="consent-notice" id="add-profile-consent" style="display:none;background:var(--error-container);border:1px solid var(--error);border-radius:var(--radius-sm);padding:12px;margin-bottom:14px;color:var(--error);font-size:0.82rem">
+        تنبيه: يمكن لمسؤول الجهاز (ولي الأمر) استعادة حسابك وبياناتك إذا نسيت كلمة المرور. سيتمكن ولي الأمر من الاطلاع على جميع محتويات خزنتك بعد الاستعادة.
+      </div>
+      <div class="modal-field" id="add-profile-parent-field" style="display:none">
+        <label>ولي الأمر</label>
+        <select id="add-profile-parent-select"></select>
+      </div>
+      <div class="modal-actions">
+        <button class="modal-cancel" id="add-profile-cancel">إلغاء</button>
+        <button class="modal-save" id="add-profile-save">إنشاء الحساب</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ RECOVERY MODAL ============ -->
+  <div class="modal-overlay" id="recovery-modal-overlay">
+    <div class="modal" id="recovery-modal" style="max-width:440px">
+      <h3>استعادة الحسابات تحت الإشراف</h3>
+      <p style="color:var(--on-surface-dim);font-size:0.85rem;margin-bottom:16px">اختر حساب الطفل الذي تريد استعادة كلمة المرور له.</p>
+      <div id="recovery-child-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px"></div>
+      <div id="recovery-password-section" style="display:none">
+        <div class="modal-field"><label>كلمة المرور الرئيسية (خاصتك — ولي الأمر)</label><input type="password" id="recovery-parent-password" placeholder="أدخل كلمة المرور الرئيسية" dir="ltr"></div>
+        <div class="modal-field"><label>كلمة المرور الجديدة للطفل</label><input type="text" id="recovery-new-child-password" placeholder="كلمة مرور جديدة" dir="ltr"></div>
+        <div id="recovery-status" style="font-size:0.82rem;min-height:20px;margin:8px 0"></div>
+        <button class="modal-save" id="recovery-reset-btn" style="width:100%">إعادة تعيين كلمة المرور</button>
+      </div>
+      <button class="modal-save" id="recovery-audit-btn" style="width:100%;margin-top:12px;background:var(--surface-elevated);color:var(--on-surface-dim);border:1px solid var(--outline)">سجل الاستعادة</button>
+      <div class="modal-actions" style="margin-top:16px">
+        <button class="modal-cancel" id="recovery-cancel-modal">إغلاق</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ AUDIT LOG MODAL ============ -->
+  <div class="modal-overlay" id="audit-modal-overlay">
+    <div class="modal" id="audit-modal" style="max-width:440px">
+      <h3>سجل الاستعادة</h3>
+      <div class="audit-log-panel" id="audit-log-panel"></div>
+      <div class="modal-actions">
+        <button class="modal-cancel" id="audit-cancel">إغلاق</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ LOADING ============ -->
+  <div class="init-loader" id="init-loader">
+    <div class="loader-ring"></div>
+    <p>جاري تجهيز الخزنة التجريبية...</p>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// =========================== CONSTANTS ===========================
+const DEFAULT_PASSWORD = 'ameen123';
+const PBKDF2_ITERATIONS = 100000;
+const LS_PREFIX = 'ameen_';
+
+// =========================== PASSPHRASE WORDLISTS ===========================
+const EN_WORDS = ['apple','banana','bridge','candle','diamond','eagle','forest','garden','hammer','island','jungle','kiwi','lemon','mountain','nectar','ocean','puzzle','quartz','river','sunset','tiger','umbrella','valley','window','xenon','yellow','zebra','anchor','breeze','castle','dragon','emerald','falcon','guitar','horizon','ice','jazz','kite','lotus','mango','nova','orchid','piano','quest','rocket','silver','thunder','unity','violet','whale','azure','blaze','coral','dawn','echo','flame','glacier','harbor','iris','jade','koi','lunar','maple','nebula','onyx','pearl','rain','shadow','tulip','venus','willow','zephyr','amber','bronze','cedar','dew','elm','frost','gold','honey','ivory','jasmine','kale','lava','mist','noble','oak','pine','quill','rose','stone','tide','uranus','velvet','wave','acre','bloom','cliff','dune','ember','fern','gale','hawk','ink','jupiter','kelp','lark','moss','north','opal','plum','quarry','reed','sage','thorn','umber','vine','wheat','axis','basil','cave','dove','eden','fawn','gem','hazel','iris','lotus','mars','navy','olive','palm','ridge','silk','teal','aster','birch','cove','dusk','elm','flax','glen','heath','indigo','juniper','knoll','linden','mallow','nettle','oasis','prairie','quince','rowan','spruce','thyme','arum','briar','calla','daisy','elder','fennel','gorse','holly','ivy','laurel','myrtle','orchid','pansy','rue','saffron','tansy','verbena','wisteria','yarrow','zinnia'];
+const AR_WORDS = ['كتاب','شمس','قمر','بحر','جبل','نجم','زهرة','شجرة','نهر','سحاب','بيت','باب','نور','ليل','نهار','ورد','ماء','هواء','تراب','نار','ريح','مطر','ثلج','رمال','صخر','حجر','طير','سمك','قلم','ورق','علم','حلم','أمل','حب','سلام','حرية','قوة','عدل','حق','خير','صدق','كرم','شجاعة','صبر','حكمة','فرح','حزن','ذكرى','وقت','عمر','قلب','عقل','روح','يد','عين','لسان','كلمة','صوت','لحن','غناء','فجر','شروق','غروب','سماء','أرض','طريق','جسر','سور','حديقة','مكتبة','مدرسة','جامعة','مستشفى','مسجد','سوق','مدينة','قرية','صحراء','واحة','جزيرة','سفينة','شراع','ميناء','مصباح','شمعة','مرآة','خاتم','سوار','قلادة','خريطة','بوصلة','ساعة','مفتاح','قفل','درع','سيف','قوس','رمح','علم','راية','خيمة','نبع','غدير','ينبوع','شلال','وادي','سهل','تل','غابة','مرج','حقل','بستان','كرم','عنبر','مسك','عود','بخور','ريحان','ياسمين','نرجس','أقحوان','خزامى','لوز','تين','زيتون','نخيل','رمان','عنب','تفاح','برتقال','ليمون','خوخ','مشمش','كرز','فراولة','موز','مانجو','بطيخ','شمام','خيار','جزر','بصل','ثوم','فلفل','زعتر','نعناع','بقدونس','كمون','قرفة','زنجبيل','هيل','قرنفل','جوزة','لوز','فستق','كاجو','عسل','سكر','ملح','خبز','جبن','زيت','تمر','قهوة','شاي','حليب','زعفران','فانيلا','يانسون','بابونج','كستناء','صنوبر','تمرة','بقلاوة','كنافة','قطايف','معمول','غزال','ظبي','صقر','باز','نسر','حمام','عصفور','كناري','ببغاء','دلفين','مرجان','لؤلؤ','ياقوت','زمرد','فيروز','ألماس','عقيق','كهرمان','بلور','فخار','سيراميك','جص','رخام'];
+
+// =========================== DEMO DATA ===========================
+const DEMO_PROFILES = [
+  { id: 'ahmed', name: 'أحمد', color: '#448aff', avatarLetter: 'أ' },
+  { id: 'sara',  name: 'سارة', color: '#e040fb', avatarLetter: 'س' },
+  { id: 'nour',  name: 'نور',  color: '#00c853', avatarLetter: 'ن' }
+];
+
+const DEMO_VAULTS = {
+  ahmed: [
+    { type:'password', id:1,  title:'فيسبوك',       username:'ahmed@email.com',   password:'Fb!2024secure',   url:'facebook.com',     notes:'الحساب الشخصي' },
+    { type:'password', id:2,  title:'تويتر',         username:'@ahmed_t',         password:'Twt#pass2024',    url:'twitter.com',      notes:'' },
+    { type:'password', id:3,  title:'جيميل',         username:'ahmed@gmail.com',  password:'Gm@ilSec99',      url:'mail.google.com',  notes:'البريد الرئيسي' },
+    { type:'password', id:4,  title:'البنك الأهلي',   username:'1234567890',       password:'Bank!Secure7',    url:'alahli.com',       notes:'رقم العميل' },
+    { type:'password', id:5,  title:'نتفليكس',        username:'ahmed@netflix.com',password:'Nflx#watch1',     url:'netflix.com',      notes:'' }
+  ],
+  sara: [
+    { type:'password', id:6,  title:'انستغرام',      username:'sara_insta',       password:'Inst@gram22',     url:'instagram.com',    notes:'' },
+    { type:'password', id:7,  title:'لينكد إن',      username:'sara@work.com',    password:'Lnk#prof2024',    url:'linkedin.com',     notes:'حساب العمل' },
+    { type:'password', id:8,  title:'أمازون',         username:'sara_amazon',      password:'Amzn!buy2024',    url:'amazon.sa',        notes:'' },
+    { type:'note',     id:9,  title:'رقم الحساب البنكي', content:'SA44 1234 5678 9012 3456\nبنك الرياض — حساب التوفير' }
+  ],
+  nour: [
+    { type:'password', id:10, title:'واتساب',         username:'+966501234567',     password:'Wts@pp2024',     url:'',                 notes:'رقم الجوال' },
+    { type:'password', id:11, title:'ديسكورد',         username:'nour#1234',        password:'Dsc!chat789',    url:'',                 notes:'' },
+    { type:'card',     id:12, title:'بطاقة فيزا',      cardholder:'نور أحمد',        number:'4242 4242 4242 4242', expiry:'12/28', cvv:'123', notes:'بطاقة التسوق' }
+  ]
+};
+
+// =========================== UTILS ===========================
+function buf2hex(b) { return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join(''); }
+function hex2buf(h) { return new Uint8Array(h.match(/.{1,2}/g).map(x=>parseInt(x,16))); }
+function buf2b64(b) { return btoa(String.fromCharCode(...new Uint8Array(b))); }
+function b642buf(s) { return Uint8Array.from(atob(s),c=>c.charCodeAt(0)); }
+function ab2str(ab) { return new TextDecoder().decode(ab); }
+function str2ab(s) { return new TextEncoder().encode(s); }
+
+function uint8ToBase64(bytes) {
+  let binary = '';
+  for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+  return btoa(binary);
+}
+
+function base64ToUint8(str) {
+  const binary = atob(str);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  return bytes;
+}
+
+function getAuditLog() {
+  try { return JSON.parse(localStorage.getItem(LS_PREFIX+'audit_log')) || []; }
+  catch { return []; }
+}
+
+function saveAuditLog(log) {
+  localStorage.setItem(LS_PREFIX+'audit_log', JSON.stringify(log));
+}
+
+function addAuditEntry(action, actorId, targetId, description) {
+  const log = getAuditLog();
+  log.push({ timestamp: new Date().toISOString(), action, actorId, targetId, description });
+  saveAuditLog(log);
+}
+
+function getRecoveryPrivateKey(parentId) {
+  return localStorage.getItem(LS_PREFIX+'recovery_key_'+parentId);
+}
+
+function saveRecoveryPrivateKey(parentId, privateKeyBase64) {
+  localStorage.setItem(LS_PREFIX+'recovery_key_'+parentId, privateKeyBase64);
+}
+
+// =========================== DOM REFS ===========================
+const $ = id => document.getElementById(id);
+const app = $('app');
+const screenProfiles = $('screen-profiles');
+const screenUnlock = $('screen-unlock');
+const screenVault = $('screen-vault');
+const profileGrid = $('profile-grid');
+const unlockAvatar = $('unlock-avatar');
+const unlockName = $('unlock-name');
+const masterPassword = $('master-password');
+const unlockError = $('unlock-error');
+const unlockBtn = $('unlock-btn');
+const vaultAvatar = $('vault-avatar');
+const vaultName = $('vault-name');
+const statsBar = $('stats-bar');
+const vaultList = $('vault-list');
+const vaultSearch = $('vault-search');
+const toast = $('toast');
+const initLoader = $('init-loader');
+const addModalOverlay = $('add-modal-overlay');
+const addProfileModalOverlay = $('add-profile-modal-overlay');
+const editProfileModalOverlay = $('edit-profile-modal-overlay');
+
+// =========================== APP STATE ===========================
+let currentProfile = null;
+let currentKey = null;
+let currentVault = [];
+let activeTab = 'all';
+let nextItemId = 100;
+let genTargetField = null;
+let genActiveTab = 'password';
+
+// =========================== SCREEN NAVIGATION ===========================
+function showScreen(screen) {
+  [screenProfiles,screenUnlock,screenVault].forEach(s=>s.classList.remove('active'));
+  screen.classList.add('active');
+}
+
+// =========================== CRYPTO ===========================
+async function deriveKey(password, saltBytes) {
+  const keyMaterial = await crypto.subtle.importKey('raw', str2ab(password), 'PBKDF2', false, ['deriveKey']);
+  return crypto.subtle.deriveKey(
+    { name:'PBKDF2', salt:saltBytes, iterations:PBKDF2_ITERATIONS, hash:'SHA-256' },
+    keyMaterial, { name:'AES-GCM', length:256 }, false, ['encrypt','decrypt']
+  );
+}
+
+async function encrypt(plaintext, key) {
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const ct = await crypto.subtle.encrypt({ name:'AES-GCM', iv }, key, str2ab(plaintext));
+  return { iv:buf2hex(iv), ciphertext:buf2b64(ct) };
+}
+
+async function decrypt(encData, key) {
+  const iv = hex2buf(encData.iv);
+  const ct = b642buf(encData.ciphertext);
+  const pt = await crypto.subtle.decrypt({ name:'AES-GCM', iv }, key, ct);
+  return ab2str(pt);
+}
+
+// =========================== PROFILE/VAULT STORAGE ===========================
+function getProfiles() {
+  try { return JSON.parse(localStorage.getItem(LS_PREFIX+'profiles')) || []; }
+  catch { return []; }
+}
+
+function saveProfiles(profiles) {
+  localStorage.setItem(LS_PREFIX+'profiles', JSON.stringify(profiles));
+}
+
+function getVaultData(profileId) {
+  try { return JSON.parse(localStorage.getItem(LS_PREFIX+'vault_'+profileId)); }
+  catch { return null; }
+}
+
+function saveVaultData(profileId, data) {
+  localStorage.setItem(LS_PREFIX+'vault_'+profileId, JSON.stringify(data));
+}
+
+// =========================== INITIALIZATION ===========================
+async function initializeApp() {
+  if (localStorage.getItem(LS_PREFIX+'initialized') === '1') {
+    renderProfiles();
+    initLoader.classList.add('hidden');
+    return;
+  }
+
+  // First run: encrypt demo vaults
+  const profiles = DEMO_PROFILES.map(p=>({ id:p.id, name:p.name, color:p.color, avatarLetter:p.avatarLetter }));
+  saveProfiles(profiles);
+
+  for (const profile of profiles) {
+    const items = DEMO_VAULTS[profile.id] || [];
+    const salt = crypto.getRandomValues(new Uint8Array(16));
+    const key = await deriveKey(DEFAULT_PASSWORD, salt);
+    const { iv, ciphertext } = await encrypt(JSON.stringify(items), key);
+    saveVaultData(profile.id, {
+      salt: buf2hex(salt), iv, ciphertext,
+      meta: {
+        passwordCount: items.filter(i=>i.type==='password').length,
+        noteCount: items.filter(i=>i.type==='note').length,
+        cardCount: items.filter(i=>i.type==='card').length,
+      }
+    });
+  }
+
+  localStorage.setItem(LS_PREFIX+'initialized', '1');
+  renderProfiles();
+  initLoader.classList.add('hidden');
+}
+
+// =========================== RENDER PROFILES ===========================
+function renderProfiles() {
+  const profiles = getProfiles();
+  const hasChildren = profiles.some(p => p.isChild);
+  profileGrid.innerHTML = '';
+
+  profiles.forEach(p => {
+    const stored = getVaultData(p.id);
+    const total = stored?.meta ? stored.meta.passwordCount + stored.meta.noteCount + stored.meta.cardCount : 0;
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'profile-card-wrapper';
+
+    const card = document.createElement('button');
+    card.className = 'profile-card';
+
+    let badgeHTML = '';
+    if (p.isChild) {
+      badgeHTML = '<span class="profile-badge">تحت الإشراف</span>';
+    } else if (!p.parentProfileId && hasChildren) {
+      badgeHTML = '<span class="profile-badge">ولي أمر</span>';
+    }
+
+    card.innerHTML = `
+      <div class="avatar" style="background:${p.color}">${p.avatarLetter}</div>
+      <span class="name">${p.name}</span>
+      ${badgeHTML}
+      ${total ? `<span class="count">${total} عناصر</span>` : ''}
+    `;
+    card.addEventListener('click', ()=>selectProfile(p));
+
+    const actions = document.createElement('div');
+    actions.className = 'profile-actions';
+    actions.innerHTML = `
+      <button class="profile-edit-btn" title="تعديل">&#9998;</button>
+      <button class="profile-delete-btn" title="حذف">&#128465;</button>
+    `;
+
+    actions.querySelector('.profile-edit-btn').addEventListener('click', e => {
+      e.stopPropagation();
+      openEditProfileModal(p);
+    });
+
+    actions.querySelector('.profile-delete-btn').addEventListener('click', e => {
+      e.stopPropagation();
+      deleteProfile(p);
+    });
+
+    wrapper.appendChild(card);
+    wrapper.appendChild(actions);
+    profileGrid.appendChild(wrapper);
+  });
+
+  const addBtn = document.createElement('button');
+  addBtn.className = 'add-profile';
+  addBtn.innerHTML = '<div class="add-circle">+</div><span>إضافة حساب</span>';
+  addBtn.addEventListener('click', openAddProfileModal);
+  profileGrid.appendChild(addBtn);
+
+  const recoveryBtn = document.createElement('button');
+  recoveryBtn.className = 'recovery-entry-btn';
+  const hasChildrenForRecovery = profiles.some(p => p.isChild);
+  if (!hasChildrenForRecovery) recoveryBtn.classList.add('disabled');
+  recoveryBtn.innerHTML = '<div class="recovery-circle">🛡️</div><span>استعادة الحسابات</span>';
+  recoveryBtn.addEventListener('click', openRecoveryModal);
+  profileGrid.appendChild(recoveryBtn);
+}
+
+// =========================== ADD PROFILE MODAL ===========================
+function openAddProfileModal() {
+  const profiles = getProfiles();
+  const parents = profiles.filter(p => !p.isChild);
+  const select = $('add-profile-parent-select');
+  select.innerHTML = parents.map(p => `<option value="${p.id}">${esc(p.name)}</option>`).join('');
+  $('add-profile-name').value = '';
+  $('add-profile-is-child').checked = false;
+  $('add-profile-consent').style.display = 'none';
+  $('add-profile-parent-field').style.display = 'none';
+  addProfileModalOverlay.classList.add('visible');
+  setTimeout(() => $('add-profile-name').focus(), 100);
+}
+
+$('add-profile-cancel').addEventListener('click', () => {
+  addProfileModalOverlay.classList.remove('visible');
+});
+
+addProfileModalOverlay.addEventListener('click', e => {
+  if (e.target === addProfileModalOverlay) addProfileModalOverlay.classList.remove('visible');
+});
+
+$('add-profile-is-child').addEventListener('change', () => {
+  const checked = $('add-profile-is-child').checked;
+  $('add-profile-consent').style.display = checked ? '' : 'none';
+  $('add-profile-parent-field').style.display = checked ? '' : 'none';
+});
+
+$('add-profile-save').addEventListener('click', async () => {
+  const name = $('add-profile-name').value.trim();
+  if (!name) { showToast('الرجاء إدخال اسم الحساب', 'error'); return; }
+  const profiles = getProfiles();
+  if (profiles.some(p => p.name === name)) { showToast('يوجد حساب بهذا الاسم بالفعل', 'error'); return; }
+  const isChild = $('add-profile-is-child').checked;
+  const parentProfileId = isChild ? $('add-profile-parent-select').value : null;
+  if (isChild && !parentProfileId) { showToast('الرجاء اختيار ولي الأمر', 'error'); return; }
+  const id = 'prof_' + Date.now();
+  const colors = ['#448aff','#e040fb','#00c853','#ff9100','#00bcd4','#ff5252','#536dfe','#ab47bc','#26a69a'];
+  const color = colors[profiles.length % colors.length];
+  const avatarLetter = name.charAt(0);
+  const childProfile = { id, name, color, avatarLetter, isChild, parentProfileId: parentProfileId || undefined, createdAt: new Date().toISOString() };
+  profiles.push(childProfile);
+  saveProfiles(profiles);
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const key = await deriveKey(DEFAULT_PASSWORD, salt);
+  const { iv, ciphertext } = await encrypt('[]', key);
+  saveVaultData(id, { salt: buf2hex(salt), iv, ciphertext, meta: { passwordCount:0, noteCount:0, cardCount:0 } });
+  if (isChild && parentProfileId) {
+    const parentProfile = profiles.find(p => p.id === parentProfileId);
+    await setupRecoveryKeys(id, parentProfileId, name, (parentProfile||{}).name||'ولي الأمر');
+  }
+  addProfileModalOverlay.classList.remove('visible');
+  renderProfiles();
+  showToast('تم إضافة الحساب بنجاح', 'success');
+});
+
+// =========================== RECOVERY KEY SETUP ===========================
+async function setupRecoveryKeys(childProfileId, parentProfileId, childName, parentName) {
+  const keyPair = await crypto.subtle.generateKey(
+    { name: 'RSA-OAEP', modulusLength: 4096, publicExponent: new Uint8Array([1,0,1]), hash: 'SHA-256' },
+    true, ['encrypt', 'decrypt']
+  );
+  const publicKeyRaw = await crypto.subtle.exportKey('spki', keyPair.publicKey);
+  const privateKeyRaw = await crypto.subtle.exportKey('pkcs8', keyPair.privateKey);
+  const publicKeyBase64 = uint8ToBase64(new Uint8Array(publicKeyRaw));
+  const privateKeyBase64 = uint8ToBase64(new Uint8Array(privateKeyRaw));
+  const childVaultKey = crypto.getRandomValues(new Uint8Array(32));
+  const importedPublicKey = await crypto.subtle.importKey('spki', publicKeyRaw, { name: 'RSA-OAEP', hash: 'SHA-256' }, false, ['encrypt']);
+  const encryptedKey = await crypto.subtle.encrypt({ name: 'RSA-OAEP' }, importedPublicKey, childVaultKey);
+  const encryptedKeyBase64 = uint8ToBase64(new Uint8Array(encryptedKey));
+  saveRecoveryPrivateKey(parentProfileId, privateKeyBase64);
+  const profiles = getProfiles();
+  const childProfile = profiles.find(p => p.id === childProfileId);
+  if (childProfile) {
+    childProfile.recoveryPublicKey = publicKeyBase64;
+    childProfile.recoveryEncryptedKey = encryptedKeyBase64;
+    saveProfiles(profiles);
+  }
+  addAuditEntry('setup', parentProfileId, childProfileId, `تم إعداد استعادة الحساب للطفل ${childName} بواسطة ${parentName}`);
+}
+
+// =========================== RECOVERY MODAL ===========================
+function openRecoveryModal() {
+  const profiles = getProfiles();
+  const children = profiles.filter(p => p.isChild);
+  if (children.length === 0) { showToast('لا توجد حسابات أطفال لاستعادتها', 'warning'); return; }
+  const childList = $('recovery-child-list');
+  childList.innerHTML = children.map(child => {
+    const parentProf = profiles.find(p => p.id === child.parentProfileId);
+    return `<div class="recovery-child-card" data-child-id="${child.id}">
+      <div class="rc-avatar" style="background:${child.color||'#636378'}">${child.avatarLetter||'?'}</div>
+      <div class="rc-info"><div class="rc-name">${esc(child.name)}</div><div class="rc-label">ولي الأمر: ${esc((parentProf||{}).name||'غير معروف')}</div></div>
+    </div>`;
+  }).join('');
+  $('recovery-password-section').style.display = 'none';
+  $('recovery-parent-password').value = '';
+  $('recovery-new-child-password').value = '';
+  $('recovery-status').textContent = '';
+  $('recovery-reset-btn').dataset.childId = '';
+  childList.querySelectorAll('.recovery-child-card').forEach(card => {
+    card.addEventListener('click', () => {
+      childList.querySelectorAll('.recovery-child-card').forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+      $('recovery-password-section').style.display = 'block';
+      $('recovery-reset-btn').dataset.childId = card.dataset.childId;
+      $('recovery-parent-password').focus();
+    });
+  });
+  $('recovery-modal-overlay').classList.add('visible');
+}
+
+function closeRecoveryModal() {
+  $('recovery-modal-overlay').classList.remove('visible');
+}
+
+$('recovery-cancel-modal').addEventListener('click', closeRecoveryModal);
+$('recovery-modal-overlay').addEventListener('click', e => {
+  if (e.target === $('recovery-modal-overlay')) closeRecoveryModal();
+});
+
+async function performRecoveryReset() {
+  const childId = $('recovery-reset-btn').dataset.childId;
+  const parentPassword = $('recovery-parent-password').value;
+  const newChildPassword = $('recovery-new-child-password').value;
+  const statusEl = $('recovery-status');
+  if (!parentPassword) { statusEl.textContent = 'الرجاء إدخال كلمة المرور الرئيسية'; statusEl.style.color = 'var(--error)'; return; }
+  if (!newChildPassword || newChildPassword.length < 4) { statusEl.textContent = 'كلمة المرور الجديدة قصيرة جداً (4 أحرف على الأقل)'; statusEl.style.color = 'var(--error)'; return; }
+  const profiles = getProfiles();
+  const childProfile = profiles.find(p => p.id === childId);
+  if (!childProfile) { statusEl.textContent = 'لم يتم العثور على حساب الطفل'; statusEl.style.color = 'var(--error)'; return; }
+  if (!childProfile.recoveryEncryptedKey) { statusEl.textContent = 'لم يتم إعداد استعادة الحساب لهذا الطفل'; statusEl.style.color = 'var(--error)'; return; }
+  const parentId = childProfile.parentProfileId;
+  const parentProfile = profiles.find(p => p.id === parentId);
+  if (!parentProfile || !parentId) { statusEl.textContent = 'لم يتم العثور على حساب ولي الأمر'; statusEl.style.color = 'var(--error)'; return; }
+  statusEl.textContent = 'جاري التحقق...'; statusEl.style.color = 'var(--on-surface-dim)';
+  $('recovery-reset-btn').disabled = true;
+  try {
+    const parentVaultData = getVaultData(parentId);
+    if (!parentVaultData || !parentVaultData.ciphertext) throw new Error('لا توجد خزنة لولي الأمر');
+    const parentKey = await deriveKey(parentPassword, hex2buf(parentVaultData.salt));
+    await decrypt(parentVaultData, parentKey);
+    const privateKeyBase64 = getRecoveryPrivateKey(parentId);
+    if (!privateKeyBase64) throw new Error('لم يتم العثور على مفتاح الاستعادة');
+    const privateKey = await crypto.subtle.importKey('pkcs8', base64ToUint8(privateKeyBase64), { name: 'RSA-OAEP', hash: 'SHA-256' }, false, ['decrypt']);
+    const childVaultKeyRaw = await crypto.subtle.decrypt({ name: 'RSA-OAEP' }, privateKey, base64ToUint8(childProfile.recoveryEncryptedKey));
+    const oldKey = await crypto.subtle.importKey('raw', childVaultKeyRaw, 'AES-GCM', false, ['decrypt']);
+    const childVaultData = getVaultData(childId);
+    let vaultItems = [];
+    if (childVaultData && childVaultData.ciphertext) {
+      vaultItems = JSON.parse(await decrypt(childVaultData, oldKey));
+    }
+    const newSalt = crypto.getRandomValues(new Uint8Array(16));
+    const newKey = await deriveKey(newChildPassword, newSalt);
+    const { iv, ciphertext } = await encrypt(JSON.stringify(vaultItems), newKey);
+    saveVaultData(childId, {
+      salt: buf2hex(newSalt), iv, ciphertext,
+      meta: { passwordCount: vaultItems.filter(i=>i.type==='password').length, noteCount: vaultItems.filter(i=>i.type==='note').length, cardCount: vaultItems.filter(i=>i.type==='card').length }
+    });
+    addAuditEntry('recovery', parentId, childId, `تمت استعادة كلمة مرور ${childProfile.name} بواسطة ${parentProfile.name}`);
+    statusEl.textContent = 'تمت استعادة الحساب بنجاح'; statusEl.style.color = 'var(--success)';
+    showToast('تمت استعادة الحساب بنجاح', 'success');
+    setTimeout(() => { closeRecoveryModal(); renderProfiles(); }, 1500);
+  } catch (e) {
+    statusEl.textContent = 'كلمة المرور غير صحيحة'; statusEl.style.color = 'var(--error)';
+  } finally {
+    $('recovery-reset-btn').disabled = false;
+  }
+}
+
+$('recovery-reset-btn').addEventListener('click', performRecoveryReset);
+
+// =========================== AUDIT LOG ===========================
+function openAuditModal() {
+  const log = getAuditLog();
+  const panel = $('audit-log-panel');
+  if (log.length === 0) {
+    panel.innerHTML = '<div class="audit-empty">لا توجد عمليات استعادة حتى الآن</div>';
+  } else {
+    const actionEmojis = { setup: '🔧 إعداد', recovery: '♻️ استعادة', change: '🔑 تغيير' };
+    panel.innerHTML = log.slice().reverse().map(entry => {
+      const d = new Date(entry.timestamp);
+      const timeStr = d.toLocaleDateString('ar-SA', { year:'numeric', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
+      return `<div class="audit-entry">
+        <div class="ae-header"><span class="ae-action">${actionEmojis[entry.action]||entry.action}</span><span class="ae-time">${timeStr}</span></div>
+        <div class="ae-desc">${esc(entry.description)}</div>
+      </div>`;
+    }).join('');
+  }
+  $('audit-modal-overlay').classList.add('visible');
+}
+
+function closeAuditModal() { $('audit-modal-overlay').classList.remove('visible'); }
+$('audit-cancel').addEventListener('click', closeAuditModal);
+$('audit-modal-overlay').addEventListener('click', e => { if (e.target === $('audit-modal-overlay')) closeAuditModal(); });
+$('recovery-audit-btn').addEventListener('click', openAuditModal);
+
+// =========================== SELECT PROFILE → UNLOCK ===========================
+function selectProfile(profile) {
+  currentProfile = profile;
+  unlockAvatar.style.background = profile.color;
+  unlockAvatar.textContent = profile.avatarLetter;
+  unlockName.textContent = profile.name;
+  masterPassword.value = '';
+  unlockError.classList.remove('visible');
+  unlockError.textContent = '';
+  updateStrengthMeter();
+  masterPassword.focus();
+  showScreen(screenUnlock);
+}
+
+// =========================== UNLOCK ===========================
+async function doUnlock() {
+  const password = masterPassword.value;
+  if (!password) {
+    showUnlockError('الرجاء إدخال كلمة المرور');
+    return;
+  }
+
+  unlockBtn.classList.add('loading');
+  unlockBtn.disabled = true;
+  unlockError.classList.remove('visible');
+
+  try {
+    const vaultData = getVaultData(currentProfile.id);
+    if (!vaultData || !vaultData.ciphertext) {
+      currentKey = null; currentVault = [];
+      openVault();
+      return;
+    }
+
+    const salt = hex2buf(vaultData.salt);
+    const key = await deriveKey(password, salt);
+    const plaintext = await decrypt(vaultData, key);
+    currentKey = key;
+    currentVault = JSON.parse(plaintext);
+    openVault();
+  } catch (e) {
+    showUnlockError('كلمة المرور غير صحيحة');
+    currentKey = null;
+    currentVault = [];
+  } finally {
+    unlockBtn.classList.remove('loading');
+    unlockBtn.disabled = false;
+  }
+}
+
+function showUnlockError(msg) {
+  unlockError.textContent = msg;
+  unlockError.classList.add('visible');
+}
+
+// =========================== STRENGTH METER ===========================
+function updateStrengthMeter() {
+  const password = masterPassword.value;
+  const meter = document.getElementById('strength-meter');
+  const bar = document.getElementById('strength-bar');
+  const label = document.getElementById('strength-label');
+
+  if (!password) {
+    meter.classList.remove('visible');
+    meter.style.display = 'none';
+    return;
+  }
+
+  meter.style.display = 'flex';
+  meter.offsetHeight;
+  meter.classList.add('visible');
+
+  let score = 0;
+  const len = password.length;
+
+  // Length (0-25)
+  if (len >= 12) score += 25;
+  else if (len >= 8) score += 12;
+  else score += Math.floor(len * 1.5);
+
+  // Uppercase (0-15)
+  const upperCount = (password.match(/[A-Z]/g) || []).length;
+  if (upperCount >= 2) score += 15;
+  else if (upperCount >= 1) score += 10;
+
+  // Lowercase (0-15)
+  const lowerCount = (password.match(/[a-z]/g) || []).length;
+  if (lowerCount >= 2) score += 15;
+  else if (lowerCount >= 1) score += 10;
+
+  // Digits (0-15)
+  const digitCount = (password.match(/[0-9]/g) || []).length;
+  if (digitCount >= 2) score += 15;
+  else if (digitCount >= 1) score += 10;
+
+  // Special characters (0-15)
+  const specialCount = (password.match(/[^A-Za-z0-9]/g) || []).length;
+  if (specialCount >= 2) score += 15;
+  else if (specialCount >= 1) score += 10;
+
+  // No repeating patterns like "aaa" (15)
+  if (!/(.)\1\1/.test(password)) score += 15;
+
+  score = Math.min(100, Math.max(0, score));
+
+  let level, colorVar;
+  if (score <= 25) { level = 'ضعيف'; colorVar = 'var(--error)'; }
+  else if (score <= 50) { level = 'مقبول'; colorVar = 'var(--warning)'; }
+  else if (score <= 75) { level = 'قوي'; colorVar = 'var(--success)'; }
+  else { level = 'قوي جداً'; colorVar = 'var(--primary-dim)'; }
+
+  bar.style.width = score + '%';
+  bar.style.backgroundColor = colorVar;
+  label.textContent = level;
+  label.style.color = colorVar;
+}
+
+// =========================== OPEN VAULT ===========================
+function openVault() {
+  vaultAvatar.style.background = currentProfile.color;
+  vaultAvatar.textContent = currentProfile.avatarLetter;
+  vaultName.textContent = currentProfile.name;
+  vaultSearch.value = '';
+  activeTab = 'all';
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelector('.tab-btn[data-tab="all"]').classList.add('active');
+  renderStats();
+  renderVaultList();
+  showScreen(screenVault);
+}
+
+function renderStats() {
+  const pw = currentVault.filter(i=>i.type==='password').length;
+  const nt = currentVault.filter(i=>i.type==='note').length;
+  const cd = currentVault.filter(i=>i.type==='card').length;
+  statsBar.innerHTML = `
+    <div class="stat-chip"><span class="stat-num">${pw}</span><span class="stat-label">كلمة مرور</span></div>
+    <div class="stat-chip"><span class="stat-num">${nt}</span><span class="stat-label">ملاحظة</span></div>
+    <div class="stat-chip"><span class="stat-num">${cd}</span><span class="stat-label">بطاقة</span></div>
+  `;
+}
+
+function getFilteredItems() {
+  let items = currentVault;
+  if (activeTab !== 'all') items = items.filter(i=>i.type===activeTab);
+  const q = vaultSearch.value.trim().toLowerCase();
+  if (q) {
+    items = items.filter(i => {
+      const haystack = [i.title,i.username,i.url,i.notes,i.content,i.cardholder,i.number].filter(Boolean).join(' ').toLowerCase();
+      return haystack.includes(q) || (i.type==='password'&&i.password&&i.password.toLowerCase().includes(q));
+    });
+  }
+  return items;
+}
+
+function renderVaultList() {
+  const items = getFilteredItems();
+  const q = vaultSearch.value.trim();
+  if (items.length === 0) {
+    vaultList.innerHTML = `<div class="empty-state"><div class="empty-icon">🔍</div><p>لا توجد عناصر مطابقة</p></div>`;
+    return;
+  }
+
+  vaultList.innerHTML = items.map(item => {
+    const iconMap = { password:'🔑', note:'📝', card:'💳' };
+    let metaText = '';
+    if (item.type==='password') metaText = item.username || '';
+    else if (item.type==='card') metaText = '•••• ' + (item.number||'').slice(-4);
+    else metaText = (item.content||'').substring(0,40) + (item.content&&item.content.length>40?'…':'');
+
+    let detailHTML = '';
+    if (item.type === 'password') {
+      detailHTML = `
+        <div class="detail-row"><span class="detail-label">اسم المستخدم</span><span class="detail-value">${highlightMatches(item.username||'—',q)}</span><div class="detail-actions"><button class="detail-btn copy-btn" data-val="${escAttr(item.username||'')}">نسخ</button></div></div>
+        <div class="detail-row"><span class="detail-label">كلمة المرور</span><span class="detail-value masked" id="pw-${item.id}">${highlightMatches(item.password||'',q)}</span><div class="detail-actions"><button class="detail-btn reveal-btn" data-target="pw-${item.id}">إظهار</button><button class="detail-btn copy-btn" data-val="${escAttr(item.password||'')}">نسخ</button></div></div>
+        ${item.url ? `<div class="detail-row"><span class="detail-label">الرابط</span><span class="detail-value" style="direction:ltr;text-align:right">${highlightMatches(item.url,q)}</span><div class="detail-actions"><button class="detail-btn copy-btn" data-val="${escAttr(item.url)}">نسخ</button></div></div>` : ''}
+        ${item.otpSecret ? `<div class="detail-row"><span class="detail-label">رمز OTP</span><span class="detail-value otp-code" id="otp-${item.id}">------</span><div class="detail-actions"><button class="detail-btn otp-copy-btn" data-otp-id="${item.id}">نسخ</button><span class="otp-timer" id="otp-timer-${item.id}">30</span></div></div>` : ''}
+        ${item.notes ? `<div class="detail-row"><span class="detail-label">ملاحظات</span><span class="detail-value">${highlightMatches(item.notes,q)}</span></div>` : ''}
+      `;
+    } else if (item.type === 'note') {
+      detailHTML = `
+        <div class="detail-row"><span class="detail-label">المحتوى</span><span class="detail-value" style="white-space:pre-wrap">${highlightMatches(item.content||'',q)}</span></div>
+      `;
+    } else if (item.type === 'card') {
+      detailHTML = `
+        <div class="detail-row"><span class="detail-label">حامل البطاقة</span><span class="detail-value">${highlightMatches(item.cardholder||'—',q)}</span></div>
+        <div class="detail-row"><span class="detail-label">رقم البطاقة</span><span class="detail-value masked" id="cardnum-${item.id}" style="direction:ltr;text-align:right">${highlightMatches(item.number||'',q)}</span><div class="detail-actions"><button class="detail-btn reveal-btn" data-target="cardnum-${item.id}">إظهار</button><button class="detail-btn copy-btn" data-val="${escAttr(item.number||'')}">نسخ</button></div></div>
+        <div class="detail-row"><span class="detail-label">الانتهاء</span><span class="detail-value" style="direction:ltr;text-align:right">${highlightMatches(item.expiry||'—',q)}</span></div>
+        <div class="detail-row"><span class="detail-label">CVV</span><span class="detail-value masked" id="cvv-${item.id}" style="direction:ltr;text-align:right">${highlightMatches(item.cvv||'',q)}</span><div class="detail-actions"><button class="detail-btn reveal-btn" data-target="cvv-${item.id}">إظهار</button><button class="detail-btn copy-btn" data-val="${escAttr(item.cvv||'')}">نسخ</button></div></div>
+        ${item.notes ? `<div class="detail-row"><span class="detail-label">ملاحظات</span><span class="detail-value">${highlightMatches(item.notes,q)}</span></div>` : ''}
+      `;
+    }
+
+    return `
+      <div class="vault-item" data-id="${item.id}">
+        <div class="vault-item-summary">
+          <div class="item-icon ${item.type}">${iconMap[item.type]||'🔑'}</div>
+          <div class="item-info">
+            <div class="item-title">${highlightMatches(item.title,q)}</div>
+            <div class="item-meta">${highlightMatches(metaText,q)}</div>
+          </div>
+          <button class="item-edit-btn" data-id="${item.id}" title="تعديل">&#9998;</button>
+          <button class="item-delete-btn" data-id="${item.id}" title="حذف">&#128465;</button>
+          <button class="item-copy quick-copy" data-val="${escAttr(item.type==='password'?item.password:item.type==='card'?item.number:'')}" title="نسخ">
+            <svg class="icon-sm" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+          </button>
+        </div>
+        <div class="item-details">${detailHTML}</div>
+      </div>
+    `;
+  }).join('');
+
+  // Attach event listeners
+  vaultList.querySelectorAll('.vault-item-summary').forEach(summary => {
+    summary.addEventListener('click', function(e) {
+      if (e.target.closest('.quick-copy') || e.target.closest('.item-copy') || e.target.closest('.item-edit-btn') || e.target.closest('.item-delete-btn')) return;
+      this.parentElement.classList.toggle('expanded');
+    });
+  });
+
+  vaultList.querySelectorAll('.copy-btn').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      copyToClipboard(btn.dataset.val);
+    });
+  });
+
+  vaultList.querySelectorAll('.reveal-btn').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const target = $(btn.dataset.target);
+      if (target) {
+        const isMasked = target.classList.toggle('masked');
+        btn.textContent = isMasked ? 'إظهار' : 'إخفاء';
+      }
+    });
+  });
+
+  vaultList.querySelectorAll('.quick-copy').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      copyToClipboard(btn.dataset.val);
+    });
+  });
+
+  vaultList.querySelectorAll('.item-edit-btn').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      openEditModal(parseInt(btn.dataset.id));
+    });
+  });
+
+  vaultList.querySelectorAll('.item-delete-btn').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      deleteVaultItem(parseInt(btn.dataset.id));
+    });
+  });
+
+  vaultList.querySelectorAll('.otp-copy-btn').forEach(btn => {
+    btn.addEventListener('click', async e => {
+      e.stopPropagation();
+      const itemId = parseInt(btn.dataset.otpId);
+      const item = currentVault.find(i => i.id === itemId);
+      if (item && item.otpSecret) {
+        copyToClipboard(await generateTOTP(item.otpSecret));
+      }
+    });
+  });
+
+  startOTPTimer();
+}
+
+function esc(s) {
+  if (!s) return '';
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function escAttr(s) {
+  if (!s) return '';
+  return s.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+function highlightMatches(text, query) {
+  if (!text || !query) return esc(text);
+  var escaped = esc(text);
+  var escapedQuery = esc(query).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  var regex = new RegExp('(' + escapedQuery + ')', 'gi');
+  return escaped.replace(regex, '<mark class="search-highlight">$1</mark>');
+}
+
+// =========================== VAULT ACTIONS ===========================
+async function lockVault() {
+  if (window.otpInterval) { clearInterval(window.otpInterval); window.otpInterval = null; }
+  currentKey = null;
+  currentVault = [];
+  currentProfile = null;
+  showScreen(screenProfiles);
+}
+
+async function persistVault() {
+  if (!currentKey || !currentProfile) return;
+  const vaultData = getVaultData(currentProfile.id);
+  const { iv, ciphertext } = await encrypt(JSON.stringify(currentVault), currentKey);
+  saveVaultData(currentProfile.id, {
+    salt: vaultData.salt, iv, ciphertext,
+    meta: {
+      passwordCount: currentVault.filter(i=>i.type==='password').length,
+      noteCount: currentVault.filter(i=>i.type==='note').length,
+      cardCount: currentVault.filter(i=>i.type==='card').length,
+    }
+  });
+}
+
+async function addVaultItem(item) {
+  item.id = nextItemId++;
+  currentVault.push(item);
+  await persistVault();
+  renderStats();
+  renderVaultList();
+}
+
+// =========================== CLIPBOARD ===========================
+async function copyToClipboard(text) {
+  try {
+    await navigator.clipboard.writeText(text);
+    showToast('تم النسخ ✓', 'success');
+  } catch {
+    showToast('تعذر النسخ', 'error');
+  }
+}
+
+// =========================== TOAST ===========================
+let toastTimer;
+function showToast(msg, type) {
+  clearTimeout(toastTimer);
+  toast.textContent = msg;
+  toast.className = 'toast ' + (type||'');
+  requestAnimationFrame(() => toast.classList.add('show'));
+  toastTimer = setTimeout(() => toast.classList.remove('show'), 2200);
+}
+
+// =========================== EVENT LISTENERS ===========================
+$('unlock-back').addEventListener('click', ()=>{
+  currentProfile = null;
+  showScreen(screenProfiles);
+});
+
+$('eye-toggle').addEventListener('click', ()=>{
+  const isPassword = masterPassword.type === 'password';
+  masterPassword.type = isPassword ? 'text' : 'password';
+  $('eye-off-icon').style.display = isPassword ? 'none' : '';
+  $('eye-on-icon').style.display = isPassword ? '' : 'none';
+});
+
+masterPassword.addEventListener('keydown', e => {
+  if (e.key === 'Enter') doUnlock();
+});
+
+masterPassword.addEventListener('input', updateStrengthMeter);
+
+unlockBtn.addEventListener('click', doUnlock);
+
+$('lock-btn').addEventListener('click', lockVault);
+
+vaultSearch.addEventListener('input', ()=>{
+  const clearBtn = $('search-clear-btn');
+  if (vaultSearch.value.trim()) {
+    clearBtn.classList.add('visible');
+  } else {
+    clearBtn.classList.remove('visible');
+  }
+  renderVaultList();
+});
+
+$('search-clear-btn').addEventListener('click', ()=>{
+  vaultSearch.value = '';
+  $('search-clear-btn').classList.remove('visible');
+  renderVaultList();
+  vaultSearch.focus();
+});
+
+$('tab-bar').addEventListener('click', e => {
+  const btn = e.target.closest('.tab-btn');
+  if (!btn) return;
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  activeTab = btn.dataset.tab;
+  renderVaultList();
+});
+
+// =========================== ADD ITEM MODAL ===========================
+$('fab-btn').addEventListener('click', ()=>{
+  $('add-title').value = '';
+  $('add-username').value = '';
+  $('add-password').value = '';
+  $('add-url').value = '';
+  $('add-otp-secret').value = '';
+  $('add-content').value = '';
+  $('add-cardholder').value = '';
+  $('add-number').value = '';
+  $('add-expiry').value = '';
+  $('add-cvv').value = '';
+  $('add-notes').value = '';
+  $('add-type').value = 'password';
+  updateAddFormFields();
+  addModalOverlay.classList.add('visible');
+});
+
+$('add-type').addEventListener('change', updateAddFormFields);
+
+function updateAddFormFields() {
+  const type = $('add-type').value;
+  $('add-password-fields').style.display = type==='password' ? '' : 'none';
+  $('add-note-fields').style.display = type==='note' ? '' : 'none';
+  $('add-card-fields').style.display = type==='card' ? '' : 'none';
+}
+
+function updateEditFormFields() {
+  const type = $('edit-type').value;
+  $('edit-password-fields').style.display = type==='password' ? '' : 'none';
+  $('edit-note-fields').style.display = type==='note' ? '' : 'none';
+  $('edit-card-fields').style.display = type==='card' ? '' : 'none';
+}
+
+function openEditModal(itemId) {
+  const item = currentVault.find(i => i.id === itemId);
+  if (!item) return;
+  $('edit-type').value = item.type;
+  $('edit-title').value = item.title || '';
+  $('edit-username').value = item.username || '';
+  $('edit-password').value = item.password || '';
+  $('edit-url').value = item.url || '';
+  $('edit-otp-secret').value = item.otpSecret || '';
+  $('edit-content').value = item.content || '';
+  $('edit-cardholder').value = item.cardholder || '';
+  $('edit-number').value = item.number || '';
+  $('edit-expiry').value = item.expiry || '';
+  $('edit-cvv').value = item.cvv || '';
+  $('edit-notes').value = item.notes || '';
+  $('edit-modal-save').dataset.itemId = itemId;
+  updateEditFormFields();
+  $('edit-modal-overlay').classList.add('visible');
+}
+
+function deleteVaultItem(itemId) {
+  const item = currentVault.find(i => i.id === itemId);
+  if (!item) return;
+  if (!confirm('هل أنت متأكد من حذف "' + item.title + '"؟')) return;
+  currentVault.splice(currentVault.indexOf(item), 1);
+  persistVault();
+  renderStats();
+  renderVaultList();
+  showToast('تم الحذف بنجاح', 'success');
+}
+
+$('modal-cancel').addEventListener('click', ()=>{
+  addModalOverlay.classList.remove('visible');
+});
+
+addModalOverlay.addEventListener('click', e => {
+  if (e.target === addModalOverlay) addModalOverlay.classList.remove('visible');
+});
+
+$('modal-save').addEventListener('click', async ()=>{
+  const type = $('add-type').value;
+  const title = $('add-title').value.trim();
+  if (!title) { showToast('الرجاء إدخال العنوان', 'error'); return; }
+
+  const item = { type, title, notes: $('add-notes').value.trim() };
+
+  if (type === 'password') {
+    item.username = $('add-username').value.trim();
+    item.password = $('add-password').value.trim();
+    item.url = $('add-url').value.trim();
+    const otpRaw = $('add-otp-secret').value.trim();
+    if (otpRaw) {
+      if (otpRaw.startsWith('otpauth://')) {
+        const parsed = parseOTPAuthURI(otpRaw);
+        item.otpSecret = parsed.secret;
+        if (parsed.label) item.otpLabel = parsed.label;
+        if (parsed.issuer) item.otpIssuer = parsed.issuer;
+      } else {
+        item.otpSecret = otpRaw;
+      }
+    }
+  } else if (type === 'note') {
+    item.content = $('add-content').value.trim();
+  } else if (type === 'card') {
+    item.cardholder = $('add-cardholder').value.trim();
+    item.number = $('add-number').value.trim();
+    item.expiry = $('add-expiry').value.trim();
+    item.cvv = $('add-cvv').value.trim();
+  }
+
+  await addVaultItem(item);
+  addModalOverlay.classList.remove('visible');
+  showToast('تمت الإضافة بنجاح', 'success');
+});
+
+// =========================== EDIT ITEM MODAL ===========================
+$('edit-type').addEventListener('change', updateEditFormFields);
+
+$('edit-modal-cancel').addEventListener('click', ()=>{
+  $('edit-modal-overlay').classList.remove('visible');
+});
+
+$('edit-modal-overlay').addEventListener('click', e => {
+  if (e.target === $('edit-modal-overlay')) $('edit-modal-overlay').classList.remove('visible');
+});
+
+$('edit-modal-save').addEventListener('click', async ()=>{
+  const itemId = parseInt($('edit-modal-save').dataset.itemId);
+  const item = currentVault.find(i => i.id === itemId);
+  if (!item) return;
+
+  const title = $('edit-title').value.trim();
+  if (!title) { showToast('الرجاء إدخال العنوان', 'error'); return; }
+
+  item.type = $('edit-type').value;
+  item.title = title;
+  item.notes = $('edit-notes').value.trim();
+
+  if (item.type === 'password') {
+    item.username = $('edit-username').value.trim();
+    item.password = $('edit-password').value.trim();
+    item.url = $('edit-url').value.trim();
+    const otpRaw = $('edit-otp-secret').value.trim();
+    if (otpRaw) {
+      if (otpRaw.startsWith('otpauth://')) {
+        const parsed = parseOTPAuthURI(otpRaw);
+        item.otpSecret = parsed.secret;
+        if (parsed.label) item.otpLabel = parsed.label;
+        if (parsed.issuer) item.otpIssuer = parsed.issuer;
+      } else {
+        item.otpSecret = otpRaw;
+      }
+    }
+    delete item.content; delete item.cardholder; delete item.number; delete item.expiry; delete item.cvv;
+  } else if (item.type === 'note') {
+    item.content = $('edit-content').value.trim();
+    delete item.username; delete item.password; delete item.url; delete item.cardholder; delete item.number; delete item.expiry; delete item.cvv; delete item.otpSecret; delete item.otpLabel; delete item.otpIssuer;
+  } else if (item.type === 'card') {
+    item.cardholder = $('edit-cardholder').value.trim();
+    item.number = $('edit-number').value.trim();
+    item.expiry = $('edit-expiry').value.trim();
+    item.cvv = $('edit-cvv').value.trim();
+    delete item.username; delete item.password; delete item.url; delete item.content; delete item.otpSecret; delete item.otpLabel; delete item.otpIssuer;
+  }
+
+  await persistVault();
+  renderStats();
+  renderVaultList();
+  $('edit-modal-overlay').classList.remove('visible');
+  showToast('تم التعديل بنجاح', 'success');
+});
+
+// =========================== TOTP ===========================
+function base32ToBytes(str) {
+  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+  const cleaned = str.toUpperCase().replace(/[\s\-=]/g, '');
+  const bytes = [];
+  let bits = 0, value = 0;
+  for (let i = 0; i < cleaned.length; i++) {
+    const idx = alphabet.indexOf(cleaned[i]);
+    if (idx === -1) continue;
+    value = (value << 5) | idx;
+    bits += 5;
+    if (bits >= 8) {
+      bits -= 8;
+      bytes.push((value >>> bits) & 0xFF);
+    }
+  }
+  return new Uint8Array(bytes);
+}
+
+async function generateTOTP(secret, period = 30, digits = 6) {
+  try {
+    const secretBytes = base32ToBytes(secret);
+    const counter = Math.floor(Date.now() / 1000 / period);
+    const counterBuf = new ArrayBuffer(8);
+    const dv = new DataView(counterBuf);
+    dv.setBigUint64(0, BigInt(counter), false);
+    const key = await crypto.subtle.importKey('raw', secretBytes, { name: 'HMAC', hash: 'SHA-1' }, false, ['sign']);
+    const hmac = new Uint8Array(await crypto.subtle.sign('HMAC', key, counterBuf));
+    const offset = hmac[hmac.length - 1] & 0x0F;
+    const code = ((hmac[offset] & 0x7F) << 24) |
+                 ((hmac[offset + 1] & 0xFF) << 16) |
+                 ((hmac[offset + 2] & 0xFF) << 8) |
+                 (hmac[offset + 3] & 0xFF);
+    return String(code % Math.pow(10, digits)).padStart(digits, '0');
+  } catch (e) {
+    console.error('TOTP generation error:', e);
+    return '------';
+  }
+}
+
+function getTOTPRemaining(period = 30) {
+  return period - Math.floor(Date.now() / 1000) % period;
+}
+
+function parseOTPAuthURI(uri) {
+  try {
+    const url = new URL(uri.replace('otpauth://totp/', 'https://x/'));
+    const label = decodeURIComponent(url.pathname.substring(1));
+    const params = url.searchParams;
+    const secret = params.get('secret') || '';
+    const issuer = params.get('issuer') || '';
+    const algorithm = params.get('algorithm') || 'SHA1';
+    const digits = parseInt(params.get('digits') || '6');
+    const period = parseInt(params.get('period') || '30');
+    return { secret, label, issuer, algorithm, digits, period };
+  } catch {
+    return { secret: '', label: '', issuer: '' };
+  }
+}
+
+function startOTPTimer() {
+  if (window.otpInterval) clearInterval(window.otpInterval);
+  const tick = async () => {
+    const els = document.querySelectorAll('.otp-code');
+    for (const el of els) {
+      const itemId = parseInt(el.id.replace('otp-', ''));
+      const item = currentVault.find(i => i.id === itemId);
+      if (item && item.otpSecret) {
+        el.textContent = await generateTOTP(item.otpSecret);
+        const timerEl = document.getElementById('otp-timer-' + itemId);
+        if (timerEl) {
+          const remaining = getTOTPRemaining();
+          timerEl.textContent = remaining;
+          timerEl.classList.toggle('expiring', remaining <= 7);
+        }
+      }
+    }
+  };
+  tick();
+  window.otpInterval = setInterval(tick, 1000);
+}
+
+// =========================== PASSWORD / PASSPHRASE GENERATOR ===========================
+function openGenerator(targetFieldId) {
+  genTargetField = targetFieldId;
+  updateGenResult();
+  $('generator-modal-overlay').classList.add('visible');
+}
+
+function buildPasswordCharset() {
+  const upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const lower = 'abcdefghijklmnopqrstuvwxyz';
+  const digits = '0123456789';
+  const symbols = '!@#$%^&*()_+-=[]{};:,.<>?/~';
+  const ambiguous = 'Il1O0|';
+  let charset = '';
+  if ($('gen-upper').checked) charset += $('gen-ambiguous').checked ? upper.replace(/[IlO]/g, '') : upper;
+  if ($('gen-lower').checked) charset += $('gen-ambiguous').checked ? lower.replace(/[l]/g, '') : lower;
+  if ($('gen-digits').checked) charset += $('gen-ambiguous').checked ? digits.replace(/[01]/g, '') : digits;
+  if ($('gen-symbols').checked) charset += $('gen-ambiguous').checked ? symbols.replace(/[|]/g, '') : symbols;
+  return charset;
+}
+
+function secureRandomInt(max) {
+  const arr = new Uint32Array(1);
+  crypto.getRandomValues(arr);
+  return arr[0] % max;
+}
+
+function generatePassword() {
+  let charset = buildPasswordCharset();
+  if (!charset) charset = 'abcdefghijklmnopqrstuvwxyz0123456789';
+  const len = parseInt($('gen-length').value) || 20;
+  const chars = [];
+  for (let i = 0; i < len; i++) {
+    chars.push(charset[secureRandomInt(charset.length)]);
+  }
+  for (let i = chars.length - 1; i > 0; i--) {
+    const j = secureRandomInt(i + 1);
+    [chars[i], chars[j]] = [chars[j], chars[i]];
+  }
+  return chars.join('');
+}
+
+function generatePassphrase() {
+  const wc = parseInt($('gen-wordcount').value) || 6;
+  const sep = $('gen-separator').value;
+  const capitalize = $('gen-capitalize').checked;
+  const allWords = EN_WORDS.concat(AR_WORDS);
+  const words = [];
+  const indices = new Set();
+  while (indices.size < wc) {
+    indices.add(secureRandomInt(allWords.length));
+  }
+  for (const idx of indices) {
+    let w = allWords[idx];
+    if (capitalize && /^[a-z]/i.test(w)) {
+      w = w.charAt(0).toUpperCase() + w.slice(1);
+    }
+    words.push(w);
+  }
+  return words.join(sep);
+}
+
+function getGenStrengthBits() {
+  if (genActiveTab === 'password') {
+    const charset = buildPasswordCharset();
+    if (!charset) return 0;
+    const len = parseInt($('gen-length').value) || 20;
+    return Math.log2(Math.pow(charset.length, len));
+  } else {
+    const wc = parseInt($('gen-wordcount').value) || 6;
+    const allWords = EN_WORDS.concat(AR_WORDS);
+    return Math.log2(Math.pow(allWords.length, wc));
+  }
+}
+
+function updateGenStrengthDisplay(bits) {
+  const bar = $('gen-strength-bar');
+  const label = $('gen-strength-label');
+  let pct, level, color;
+  if (bits < 40) { pct = 20; level = 'ضعيف'; color = 'var(--error)'; }
+  else if (bits < 60) { pct = 40; level = 'مقبول'; color = 'var(--warning)'; }
+  else if (bits < 80) { pct = 65; level = 'قوي'; color = 'var(--success)'; }
+  else { pct = 90; level = 'قوي جداً'; color = 'var(--primary-dim)'; }
+  bar.style.width = pct + '%';
+  bar.style.backgroundColor = color;
+  label.textContent = 'القوة: ' + level;
+  label.style.color = color;
+}
+
+function updateGenResult() {
+  const result = genActiveTab === 'password' ? generatePassword() : generatePassphrase();
+  $('gen-result').textContent = result;
+  updateGenStrengthDisplay(getGenStrengthBits());
+}
+
+// =========================== GENERATOR EVENT WIRING ===========================
+$('gen-cancel').addEventListener('click', () => {
+  $('generator-modal-overlay').classList.remove('visible');
+});
+
+$('generator-modal-overlay').addEventListener('click', e => {
+  if (e.target === $('generator-modal-overlay')) $('generator-modal-overlay').classList.remove('visible');
+});
+
+$('gen-use-btn').addEventListener('click', () => {
+  if (genTargetField) {
+    const target = document.getElementById(genTargetField);
+    if (target) target.value = $('gen-result').textContent;
+  }
+  $('generator-modal-overlay').classList.remove('visible');
+  showToast('تم إدخال كلمة المرور المُولَّدة', 'success');
+});
+
+$('gen-copy-btn').addEventListener('click', () => {
+  copyToClipboard($('gen-result').textContent);
+});
+
+document.querySelectorAll('.gen-tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.gen-tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    genActiveTab = btn.dataset.gen;
+    $('gen-password-panel').style.display = genActiveTab === 'password' ? '' : 'none';
+    $('gen-passphrase-panel').style.display = genActiveTab === 'passphrase' ? '' : 'none';
+    updateGenResult();
+  });
+});
+
+['gen-length','gen-wordcount','gen-separator','gen-upper','gen-lower','gen-digits','gen-symbols','gen-ambiguous','gen-capitalize'].forEach(id => {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.addEventListener('input', () => {
+    if (id === 'gen-length') $('gen-length-val').textContent = el.value;
+    if (id === 'gen-wordcount') $('gen-wc-val').textContent = el.value;
+    updateGenResult();
+  });
+  el.addEventListener('change', () => {
+    if (id === 'gen-length') $('gen-length-val').textContent = el.value;
+    if (id === 'gen-wordcount') $('gen-wc-val').textContent = el.value;
+    updateGenResult();
+  });
+});
+
+// =========================== PASSWORD HEALTH DASHBOARD ===========================
+function getPasswordStrengthScore(password) {
+  let score = 0;
+  const len = password.length;
+  score += Math.min(len, 25);
+  if (/[A-Z]/.test(password)) score += 15;
+  if (/[a-z]/.test(password)) score += 15;
+  if (/[0-9]/.test(password)) score += 15;
+  if (/[^A-Za-z0-9]/.test(password)) score += 15;
+  if (len > 12) score += 15;
+  return Math.min(100, score);
+}
+
+function scanPasswordHealth() {
+  const passwordItems = currentVault.filter(i => i.type === 'password');
+  const weak = [];
+  const passwordGroups = new Map();
+
+  for (const item of passwordItems) {
+    const pw = item.password || '';
+    const score = getPasswordStrengthScore(pw);
+    if (score < 40) weak.push(item);
+    if (pw) {
+      if (!passwordGroups.has(pw)) passwordGroups.set(pw, []);
+      passwordGroups.get(pw).push(item);
+    }
+  }
+
+  const duplicates = [];
+  for (const [pw, items] of passwordGroups) {
+    if (items.length >= 2) duplicates.push({ password: pw, items });
+  }
+
+  let score = 100;
+  score -= weak.length * 15;
+  score -= duplicates.length * 10;
+  score = Math.max(0, score);
+
+  return { overallScore: score, weak, duplicates, total: passwordItems.length };
+}
+
+function renderHealthFindings() {
+  const { overallScore, weak, duplicates, total } = scanPasswordHealth();
+  const circle = $('health-score-circle');
+  const label = $('health-score-label');
+  const findings = $('health-findings');
+
+  let circleColor, circleBg, textColor;
+  if (overallScore < 40) { circleColor = 'var(--error)'; circleBg = 'var(--error-container)'; textColor = 'var(--error)'; }
+  else if (overallScore < 70) { circleColor = 'var(--warning)'; circleBg = 'rgba(251,191,36,0.12)'; textColor = 'var(--warning)'; }
+  else { circleColor = 'var(--success)'; circleBg = 'rgba(74,222,128,0.12)'; textColor = 'var(--success)'; }
+
+  circle.textContent = overallScore;
+  circle.style.borderColor = circleColor;
+  circle.style.color = textColor;
+  circle.style.background = circleBg;
+  label.textContent = total === 0 ? 'لا توجد كلمات مرور للتقييم' :
+    overallScore >= 70 ? 'خزنتك بحالة ممتازة!' :
+    overallScore >= 40 ? 'هناك مجال للتحسين' : 'خزنتك تحتاج إلى اهتمام';
+  label.style.color = textColor;
+
+  let html = '';
+  if (weak.length > 0) {
+    html += `<div class="health-finding weak"><div class="hf-title">⚠️ كلمات مرور ضعيفة (${weak.length})</div>`;
+    html += weak.map(item => `<div class="hf-item">🔑 ${esc(item.title)}</div>`).join('');
+    html += '</div>';
+  }
+  if (duplicates.length > 0) {
+    html += `<div class="health-finding duplicate"><div class="hf-title">🔄 كلمات مرور مكررة (${duplicates.length} مجموعات)</div>`;
+    duplicates.forEach(group => {
+      html += `<div class="hf-item">📍 ${group.items.map(i => esc(i.title)).join('، ')}</div>`;
+    });
+    html += '</div>';
+  }
+  if (weak.length === 0 && duplicates.length === 0) {
+    html += '<div class="health-finding clean"><div class="hf-title">✅ خزنتك في حالة ممتازة!</div><div class="hf-item">جميع كلمات المرور قوية وغير مكررة.</div></div>';
+  }
+  findings.innerHTML = html;
+}
+
+$('health-btn').addEventListener('click', () => {
+  renderHealthFindings();
+  $('health-modal-overlay').classList.add('visible');
+});
+
+$('health-cancel').addEventListener('click', () => {
+  $('health-modal-overlay').classList.remove('visible');
+});
+
+$('health-modal-overlay').addEventListener('click', e => {
+  if (e.target === $('health-modal-overlay')) $('health-modal-overlay').classList.remove('visible');
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    if ($('add-modal-overlay').classList.contains('visible')) {
+      $('add-modal-overlay').classList.remove('visible');
+    }
+    if ($('edit-modal-overlay').classList.contains('visible')) {
+      $('edit-modal-overlay').classList.remove('visible');
+    }
+    if ($('generator-modal-overlay').classList.contains('visible')) {
+      $('generator-modal-overlay').classList.remove('visible');
+    }
+    if ($('health-modal-overlay').classList.contains('visible')) {
+      $('health-modal-overlay').classList.remove('visible');
+    }
+  }
+});
+
+// =========================== BOOT ===========================
+initializeApp().catch(err => {
+  console.error('Initialization failed:', err);
+  initLoader.innerHTML = '<p style="color:var(--error)">⚠️ خطأ في التحميل. الرجاء تحديث الصفحة.</p>';
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Ameen.Windows.Pages.HealthPage"
+             Title="صحة كلمات المرور"
+             BackgroundColor="{StaticResource BackgroundColor}">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="24" Spacing="16">
+
+            <Label Text="🩺 صحة كلمات المرور" FontSize="22" FontAttributes="Bold"
+                   TextColor="{StaticResource PrimaryColor}"
+                   HorizontalTextAlignment="Center" />
+
+            <!-- Overall Score -->
+            <Frame BackgroundColor="{StaticResource SurfaceColor}" CornerRadius="12"
+                   Padding="20" Margin="0,0,0,8">
+                <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
+                    <Label x:Name="ScoreLabel" Text="0" FontSize="56" FontAttributes="Bold"
+                           HorizontalTextAlignment="Center" TextColor="{StaticResource ErrorColor}" />
+                    <Label x:Name="ScoreDescription" Text="من 100" FontSize="14"
+                           HorizontalTextAlignment="Center" TextColor="{StaticResource TextSecondary}" />
+                    <ProgressBar x:Name="ScoreBar" Progress="0" ProgressColor="{StaticResource ErrorColor}"
+                                 WidthRequest="200" HorizontalOptions="Center" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Stats -->
+            <Frame BackgroundColor="{StaticResource SurfaceColor}" CornerRadius="10" Padding="16">
+                <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto" RowSpacing="8">
+                    <VerticalStackLayout HorizontalOptions="Center">
+                        <Label Text="كلمات المرور" TextColor="{StaticResource TextSecondary}" FontSize="11"
+                               HorizontalTextAlignment="Center" />
+                        <Label x:Name="TotalLabel" Text="0" FontSize="20" FontAttributes="Bold"
+                               HorizontalTextAlignment="Center" TextColor="{StaticResource TextPrimary}" />
+                    </VerticalStackLayout>
+                    <VerticalStackLayout Grid.Column="1" HorizontalOptions="Center">
+                        <Label Text="ضعيفة" TextColor="{StaticResource TextSecondary}" FontSize="11"
+                               HorizontalTextAlignment="Center" />
+                        <Label x:Name="WeakLabel" Text="0" FontSize="20" FontAttributes="Bold"
+                               HorizontalTextAlignment="Center" TextColor="{StaticResource ErrorColor}" />
+                    </VerticalStackLayout>
+                    <VerticalStackLayout Grid.Column="2" HorizontalOptions="Center">
+                        <Label Text="مكررة" TextColor="{StaticResource TextSecondary}" FontSize="11"
+                               HorizontalTextAlignment="Center" />
+                        <Label x:Name="DuplicateLabel" Text="0" FontSize="20" FontAttributes="Bold"
+                               HorizontalTextAlignment="Center" TextColor="{StaticResource ErrorColor}" />
+                    </VerticalStackLayout>
+                </Grid>
+            </Frame>
+
+            <!-- Weak Passwords -->
+            <Label x:Name="WeakHeader" Text="كلمات المرور الضعيفة" FontSize="16" FontAttributes="Bold"
+                   TextColor="{StaticResource ErrorColor}" IsVisible="False" />
+            <VerticalStackLayout x:Name="WeakList" Spacing="6" />
+
+            <!-- Duplicate Passwords -->
+            <Label x:Name="DuplicateHeader" Text="كلمات المرور المكررة" FontSize="16" FontAttributes="Bold"
+                   TextColor="{StaticResource ErrorColor}" IsVisible="False" Margin="0,8,0,0" />
+            <VerticalStackLayout x:Name="DuplicateList" Spacing="6" />
+
+            <!-- Recommendations -->
+            <Label Text="توصيات" FontSize="16" FontAttributes="Bold"
+                   TextColor="{StaticResource TextPrimary}" Margin="0,8,0,0" />
+            <Frame BackgroundColor="{StaticResource SurfaceColor}" CornerRadius="8" Padding="14">
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="• استخدم كلمات مرور بطول 12 حرفاً على الأقل" TextColor="{StaticResource TextSecondary}" FontSize="13" />
+                    <Label Text="• لا تعيد استخدام كلمات المرور بين الحسابات" TextColor="{StaticResource TextSecondary}" FontSize="13" />
+                    <Label Text="• فعّل التحقق بخطوتين (2FA) حيثما أمكن" TextColor="{StaticResource TextSecondary}" FontSize="13" />
+                    <Label Text="• استخدم مولد كلمات المرور لإنشاء كلمات فريدة" TextColor="{StaticResource TextSecondary}" FontSize="13" />
+                    <Label Text="• غيّر كلمات المرور الضعيفة فوراً" TextColor="{StaticResource TextSecondary}" FontSize="13" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <Button Text="إغلاق" Clicked="OnCloseClicked"
+                    BackgroundColor="{StaticResource PrimaryColor}"
+                    TextColor="White" CornerRadius="10"
+                    HeightRequest="48" FontSize="16"
+                    Margin="0,8,0,32" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

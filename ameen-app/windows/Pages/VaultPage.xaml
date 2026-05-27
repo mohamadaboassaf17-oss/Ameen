@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:Ameen.Windows.Models"
+             x:Class="Ameen.Windows.Pages.VaultPage"
+             Title="الخزنة"
+             BackgroundColor="{StaticResource BackgroundColor}"
+             NavigationPage.HasNavigationBar="False"
+             FlowDirection="RightToLeft">
+
+    <Grid>
+
+        <!-- ===== Main layout ===== -->
+        <Grid RowDefinitions="Auto,Auto,*" Padding="0">
+
+            <!-- ===== Top bar ===== -->
+            <Grid Grid.Row="0" ColumnDefinitions="*,Auto"
+                  BackgroundColor="{StaticResource SurfaceColor}"
+                  Padding="16,12" ColumnSpacing="12">
+
+                <Label x:Name="UserLabel" Text="أمين"
+                       FontSize="20" FontAttributes="Bold"
+                       TextColor="{StaticResource PrimaryColor}"
+                       VerticalTextAlignment="Center" />
+
+                <HorizontalStackLayout Grid.Column="1" Spacing="10">
+                    <Button x:Name="MenuBtn" Text="⋮" FontSize="22"
+                            Clicked="OnMenuClicked"
+                            BackgroundColor="Transparent"
+                            TextColor="{StaticResource TextSecondary}"
+                            WidthRequest="44" HeightRequest="44"
+                            Padding="0" CornerRadius="8" />
+                    <Button x:Name="HealthBtn" Text="🩺" FontSize="18"
+                            Clicked="OnHealthClicked"
+                            BackgroundColor="Transparent"
+                            TextColor="{StaticResource TextSecondary}"
+                            WidthRequest="44" HeightRequest="44"
+                            Padding="0" CornerRadius="8" />
+                    <Button x:Name="LockBtn" Text="🔒" FontSize="18"
+                            Clicked="OnLockClicked"
+                            BackgroundColor="Transparent"
+                            TextColor="{StaticResource TextSecondary}"
+                            WidthRequest="44" HeightRequest="44"
+                            Padding="0" CornerRadius="8" />
+                </HorizontalStackLayout>
+            </Grid>
+
+            <!-- ===== Conflict banner ===== -->
+            <Frame x:Name="ConflictBanner"
+                   Grid.Row="1"
+                   IsVisible="False"
+                   BackgroundColor="#FFF3E0"
+                   CornerRadius="8"
+                   Padding="10" Margin="8,4"
+                   HasShadow="False"
+                   BorderColor="#FFCC80">
+                <Grid ColumnDefinitions="Auto,*,Auto">
+                    <Label Grid.Column="0" Text="⚠️" FontSize="18"
+                           VerticalTextAlignment="Center" Margin="0,0,8,0" />
+                    <Label x:Name="ConflictBannerText" Grid.Column="1"
+                           Text="يوجد عناصر متعارضة بحاجة إلى مراجعة"
+                           TextColor="#E65100" VerticalTextAlignment="Center" />
+                    <Button Grid.Column="2" Text="مراجعة"
+                            Clicked="OnConflictBannerClicked"
+                            BackgroundColor="#E65100" TextColor="White"
+                            CornerRadius="6" HeightRequest="36"
+                            FontSize="13" Padding="16,0" />
+                </Grid>
+            </Frame>
+
+            <!-- ===== Main content ===== -->
+            <Grid Grid.Row="2" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,*">
+
+                <!-- Sync row -->
+                <VerticalStackLayout Grid.Row="0" Spacing="6" Padding="16,8">
+                    <Button x:Name="SyncButton"
+                            Text="زامن الآن"
+                            Clicked="OnSyncClicked"
+                            IsVisible="True"
+                            BackgroundColor="{StaticResource PrimaryColor}"
+                            TextColor="White"
+                            CornerRadius="8" />
+                    <HorizontalStackLayout Spacing="8" HorizontalOptions="Center">
+                        <ProgressBar x:Name="SyncProgress"
+                                     IsVisible="False"
+                                     ProgressColor="{StaticResource PrimaryColor}"
+                                     WidthRequest="200" />
+                        <Label x:Name="SyncResultLabel"
+                               FontSize="13"
+                               TextColor="{StaticResource TextSecondary}"
+                               HorizontalTextAlignment="Center" />
+                    </HorizontalStackLayout>
+                </VerticalStackLayout>
+
+                <!-- Stats row -->
+                <HorizontalStackLayout Grid.Row="1" Spacing="10"
+                                        Padding="16,12" HorizontalOptions="Center">
+                    <Frame BackgroundColor="{StaticResource SurfaceColor}"
+                           CornerRadius="8" Padding="16,10" HasShadow="False">
+                        <VerticalStackLayout HorizontalOptions="Center">
+                            <Label x:Name="PasswordCount" Text="0"
+                                   FontSize="20" FontAttributes="Bold"
+                                   TextColor="{StaticResource TextPrimary}"
+                                   HorizontalTextAlignment="Center" />
+                            <Label Text="كلمة مرور" FontSize="11"
+                                   TextColor="{StaticResource TextSecondary}"
+                                   HorizontalTextAlignment="Center" />
+                        </VerticalStackLayout>
+                    </Frame>
+                    <Frame BackgroundColor="{StaticResource SurfaceColor}"
+                           CornerRadius="8" Padding="16,10" HasShadow="False">
+                        <VerticalStackLayout HorizontalOptions="Center">
+                            <Label x:Name="NoteCount" Text="0"
+                                   FontSize="20" FontAttributes="Bold"
+                                   TextColor="{StaticResource TextPrimary}"
+                                   HorizontalTextAlignment="Center" />
+                            <Label Text="ملاحظة" FontSize="11"
+                                   TextColor="{StaticResource TextSecondary}"
+                                   HorizontalTextAlignment="Center" />
+                        </VerticalStackLayout>
+                    </Frame>
+                    <Frame BackgroundColor="{StaticResource SurfaceColor}"
+                           CornerRadius="8" Padding="16,10" HasShadow="False">
+                        <VerticalStackLayout HorizontalOptions="Center">
+                            <Label x:Name="CardCount" Text="0"
+                                   FontSize="20" FontAttributes="Bold"
+                                   TextColor="{StaticResource TextPrimary}"
+                                   HorizontalTextAlignment="Center" />
+                            <Label Text="بطاقة" FontSize="11"
+                                   TextColor="{StaticResource TextSecondary}"
+                                   HorizontalTextAlignment="Center" />
+                        </VerticalStackLayout>
+                    </Frame>
+                </HorizontalStackLayout>
+
+                <!-- Tab bar -->
+                <HorizontalStackLayout Grid.Row="2" Spacing="6"
+                                        Padding="16,4" HorizontalOptions="Center">
+                    <Button x:Name="TabAll" Text="الكل"
+                            Clicked="OnTabClicked"
+                            BackgroundColor="{StaticResource PrimaryColor}"
+                            TextColor="White" CornerRadius="20"
+                            HeightRequest="36" FontSize="13" Padding="16,0" />
+                    <Button x:Name="TabPasswords" Text="🔑 كلمات المرور"
+                            Clicked="OnTabClicked"
+                            BackgroundColor="{StaticResource SurfaceColor}"
+                            TextColor="{StaticResource TextSecondary}"
+                            CornerRadius="20" HeightRequest="36" FontSize="13" Padding="16,0" />
+                    <Button x:Name="TabNotes" Text="📝 ملاحظات"
+                            Clicked="OnTabClicked"
+                            BackgroundColor="{StaticResource SurfaceColor}"
+                            TextColor="{StaticResource TextSecondary}"
+                            CornerRadius="20" HeightRequest="36" FontSize="13" Padding="16,0" />
+                    <Button x:Name="TabCards" Text="💳 بطاقات"
+                            Clicked="OnTabClicked"
+                            BackgroundColor="{StaticResource SurfaceColor}"
+                            TextColor="{StaticResource TextSecondary}"
+                            CornerRadius="20" HeightRequest="36" FontSize="13" Padding="16,0" />
+                </HorizontalStackLayout>
+
+                <!-- Search bar -->
+                <SearchBar Grid.Row="3" x:Name="SearchBar"
+                           Placeholder="بحث في الخزنة..."
+                           TextChanged="OnSearchTextChanged"
+                           TextColor="{StaticResource TextPrimary}"
+                           PlaceholderColor="{StaticResource TextSecondary}"
+                           BackgroundColor="{StaticResource SurfaceColor}"
+                           CancelButtonColor="{StaticResource PrimaryColor}"
+                           Margin="16,6" />
+
+                <!-- Empty state -->
+                <Label Grid.Row="4" x:Name="EmptyLabel"
+                       Text="لا توجد عناصر مطابقة"
+                       FontSize="16" TextColor="{StaticResource TextSecondary}"
+                       HorizontalTextAlignment="Center"
+                       Margin="0,40,0,0" IsVisible="False" />
+
+                <!-- Vault items list -->
+                <ScrollView Grid.Row="4" Grid.RowSpan="3">
+                    <VerticalStackLayout x:Name="ItemsContainer" Spacing="0"
+                                          Padding="0" Margin="16,0,16,80" />
+                </ScrollView>
+
+                <!-- Floating "+" button -->
+                <Button Grid.Row="4" Grid.RowSpan="3" Text="+" FontSize="28" FontAttributes="Bold"
+                        Clicked="OnAddClicked"
+                        BackgroundColor="{StaticResource PrimaryColor}"
+                        TextColor="White" CornerRadius="32"
+                        WidthRequest="64" HeightRequest="64"
+                        Padding="0" HorizontalOptions="End"
+                        VerticalOptions="End" Margin="0,0,20,20" />
+            </Grid>
+        </Grid>
+
+        <!-- ===== Conflict resolver overlay ===== -->
+        <Grid x:Name="ConflictOverlay" IsVisible="False"
+              BackgroundColor="#80000000" ZIndex="10">
+            <Frame BackgroundColor="{StaticResource SurfaceColor}"
+                   CornerRadius="16" Padding="20"
+                   Margin="20" VerticalOptions="Center"
+                   MaximumWidthRequest="600"
+                   HasShadow="True">
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="حل التعارض" FontSize="20" FontAttributes="Bold"
+                           HorizontalTextAlignment="Center"
+                           TextColor="{StaticResource TextPrimary}" />
+                    <Label Text="تم العثور على نسختين مختلفتين. اختر النسخة الصحيحة:"
+                           FontSize="14"
+                           TextColor="{StaticResource TextSecondary}"
+                           HorizontalTextAlignment="Center" />
+
+                    <!-- Local version -->
+                    <Frame BackgroundColor="{StaticResource PrimaryContainerColor}"
+                           CornerRadius="8" Padding="12" HasShadow="False">
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="النسخة المحلية" FontAttributes="Bold"
+                                   TextColor="#1B5E20" />
+                            <Label x:Name="ConflictLocalInfo" FontSize="13"
+                                   TextColor="#333333" />
+                            <Button Text="الاحتفاظ بالمحلية"
+                                    Clicked="OnKeepLocalClicked"
+                                    BackgroundColor="{StaticResource PrimaryColor}"
+                                    TextColor="White" CornerRadius="8" />
+                        </VerticalStackLayout>
+                    </Frame>
+
+                    <!-- Remote version -->
+                    <Frame BackgroundColor="{StaticResource SecondaryContainerColor}"
+                           CornerRadius="8" Padding="12" HasShadow="False">
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="النسخة الأخرى" FontAttributes="Bold"
+                                   TextColor="{StaticResource TextPrimary}" />
+                            <Label x:Name="ConflictRemoteInfo" FontSize="13"
+                                   TextColor="{StaticResource TextSecondary}" />
+                            <Button Text="الاحتفاظ بالأخرى"
+                                    Clicked="OnKeepRemoteClicked"
+                                    BackgroundColor="{StaticResource SecondaryColor}"
+                                    TextColor="White" CornerRadius="8" />
+                        </VerticalStackLayout>
+                    </Frame>
+
+                    <Button Text="لاحقاً" Clicked="OnConflictDismissClicked"
+                            BackgroundColor="Transparent"
+                            TextColor="{StaticResource TextSecondary}" />
+                </VerticalStackLayout>
+            </Frame>
+        </Grid>
+
+    </Grid>
+</ContentPage>

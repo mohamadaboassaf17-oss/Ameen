@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Ameen.Windows (Windows)": {
+      "commandName": "Project",
+      "nativeDebugging": false
+    }
+  }
+}

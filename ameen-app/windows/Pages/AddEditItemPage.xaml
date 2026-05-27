@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Ameen.Windows.Pages.AddEditItemPage"
+             Title="إضافة عنصر"
+             BackgroundColor="{StaticResource BackgroundColor}">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="24" Spacing="14">
+
+            <Label x:Name="PageTitle" Text="إضافة عنصر جديد" FontSize="22"
+                   FontAttributes="Bold" TextColor="{StaticResource PrimaryColor}"
+                   HorizontalTextAlignment="Center" />
+
+            <!-- Type picker -->
+            <Label Text="النوع" TextColor="{StaticResource TextPrimary}" FontSize="14" />
+            <Picker x:Name="TypePicker" SelectedIndexChanged="OnTypeChanged"
+                    TextColor="{StaticResource TextPrimary}"
+                    TitleColor="{StaticResource TextSecondary}"
+                    Title="اختر النوع">
+                <Picker.ItemsSource>
+                    <x:Array Type="{x:Type x:String}">
+                        <x:String>🔑 كلمة مرور</x:String>
+                        <x:String>📝 ملاحظة</x:String>
+                        <x:String>💳 بطاقة</x:String>
+                    </x:Array>
+                </Picker.ItemsSource>
+            </Picker>
+
+            <!-- Title -->
+            <Label Text="العنوان" TextColor="{StaticResource TextPrimary}" FontSize="14" />
+            <Entry x:Name="TitleEntry" Placeholder="مثال: Gmail"
+                   TextColor="{StaticResource TextPrimary}"
+                   PlaceholderColor="{StaticResource TextSecondary}"
+                   BackgroundColor="{StaticResource SurfaceColor}" />
+
+            <!-- ===== Password fields ===== -->
+            <VerticalStackLayout x:Name="PasswordFields" Spacing="12">
+                <Label Text="اسم المستخدم" TextColor="{StaticResource TextPrimary}" FontSize="14" />
+                <Entry x:Name="UsernameEntry" Placeholder="example@gmail.com"
+                       TextColor="{StaticResource TextPrimary}"
+                       PlaceholderColor="{StaticResource TextSecondary}"
+                       BackgroundColor="{StaticResource SurfaceColor}" />
+
+                <Label Text="كلمة المرور" TextColor="{StaticResource TextPrimary}" FontSize="14" />
+                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                    <Entry x:Name="PasswordEntry" Placeholder="كلمة المرور" IsPassword="True"
+                           TextColor="{StaticResource TextPrimary}"
+                           PlaceholderColor="{StaticResource TextSecondary}"
+                           BackgroundColor="{StaticResource SurfaceColor}" />
+                    <Button Grid.Column="1" Text="🎲" FontSize="18"
+                            Clicked="OnGeneratePasswordClicked"
+                            BackgroundColor="{StaticResource PrimaryColor}"
+                            TextColor="White" CornerRadius="8"
+                            WidthRequest="44" HeightRequest="44" Padding="0" />
+                </Grid>
+
+                <Label Text="الرابط" TextColor="{StaticResource TextPrimary}" FontSize="14" />
+                <Entry x:Name="UrlEntry" Placeholder="https://example.com"
+                       Keyboard="Url"
+                       TextColor="{StaticResource TextPrimary}"
+                       PlaceholderColor="{StaticResource TextSecondary}"
+                       BackgroundColor="{StaticResource SurfaceColor}" />
+            </VerticalStackLayout>
+
+            <!-- ===== Note fields ===== -->
+            <VerticalStackLayout x:Name="NoteFields" Spacing="12" IsVisible="False">
+                <Label Text="المحتوى" TextColor="{StaticResource TextPrimary}" FontSize="14" />
+                <Editor x:Name="ContentEditor" Placeholder="أدخل الملاحظة هنا..."
+                        HeightRequest="150"
+                        TextColor="{StaticResource TextPrimary}"
+                        PlaceholderColor="{StaticResource TextSecondary}"
+                        BackgroundColor="{StaticResource SurfaceColor}" />
+            </VerticalStackLayout>
+
+            <!-- ===== Card fields ===== -->
+            <VerticalStackLayout x:Name="CardFields" Spacing="12" IsVisible="False">
+                <Label Text="اسم حامل البطاقة" TextColor="{StaticResource TextPrimary}" FontSize="14" />
+                <Entry x:Name="CardholderEntry" Placeholder="الاسم على البطاقة"
+                       TextColor="{StaticResource TextPrimary}"
+                       PlaceholderColor="{StaticResource TextSecondary}"
+                       BackgroundColor="{StaticResource SurfaceColor}" />
+
+                <Label Text="رقم البطاقة" TextColor="{StaticResource TextPrimary}" FontSize="14" />
+                <Entry x:Name="NumberEntry" Placeholder="0000 0000 0000 0000"
+                       Keyboard="Numeric"
+                       TextColor="{StaticResource TextPrimary}"
+                       PlaceholderColor="{StaticResource TextSecondary}"
+                       BackgroundColor="{StaticResource SurfaceColor}" />
+
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="انتهاء الصلاحية" TextColor="{StaticResource TextPrimary}" FontSize="14" />
+                        <Entry x:Name="ExpiryEntry" Placeholder="MM/YY"
+                               Keyboard="Numeric"
+                               TextColor="{StaticResource TextPrimary}"
+                               PlaceholderColor="{StaticResource TextSecondary}"
+                               BackgroundColor="{StaticResource SurfaceColor}" />
+                    </VerticalStackLayout>
+                    <VerticalStackLayout Grid.Column="1" Spacing="6">
+                        <Label Text="رمز الأمان" TextColor="{StaticResource TextPrimary}" FontSize="14" />
+                        <Entry x:Name="CvvEntry" Placeholder="CVV" IsPassword="True"
+                               Keyboard="Numeric" MaxLength="4"
+                               TextColor="{StaticResource TextPrimary}"
+                               PlaceholderColor="{StaticResource TextSecondary}"
+                               BackgroundColor="{StaticResource SurfaceColor}" />
+                    </VerticalStackLayout>
+                </Grid>
+            </VerticalStackLayout>
+
+            <!-- OTP secret -->
+            <Label Text="رمز OTP السري (اختياري)" TextColor="{StaticResource TextPrimary}" FontSize="14" Margin="0,6,0,0" />
+            <Entry x:Name="OtpSecretEntry" Placeholder="مثل: JBSWY3DPEHPK3PXP"
+                   TextColor="{StaticResource TextPrimary}"
+                   PlaceholderColor="{StaticResource TextSecondary}"
+                   BackgroundColor="{StaticResource SurfaceColor}" />
+
+            <!-- Notes -->
+            <Label Text="ملاحظات" TextColor="{StaticResource TextPrimary}" FontSize="14" />
+            <Editor x:Name="NotesEditor" Placeholder="ملاحظات إضافية..."
+                    HeightRequest="80"
+                    TextColor="{StaticResource TextPrimary}"
+                    PlaceholderColor="{StaticResource TextSecondary}"
+                    BackgroundColor="{StaticResource SurfaceColor}" />
+
+            <!-- Action buttons -->
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="12" Margin="0,12,0,24">
+                <Button Text="حفظ" Clicked="OnSaveClicked"
+                        BackgroundColor="{StaticResource PrimaryColor}"
+                        TextColor="White" CornerRadius="10"
+                        HeightRequest="48" FontSize="16" FontAttributes="Bold" />
+                <Button Text="إلغاء" Grid.Column="1" Clicked="OnCancelClicked"
+                        BackgroundColor="{StaticResource SurfaceColor}"
+                        TextColor="{StaticResource TextSecondary}"
+                        CornerRadius="10" HeightRequest="48" FontSize="16" />
+            </Grid>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

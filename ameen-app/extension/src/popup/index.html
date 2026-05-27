@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>أمين</title>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg:#07070c;
+      --surface:#111118;
+      --surface-elevated:#181822;
+      --surface-high:#21212e;
+      --primary:#a78bfa;
+      --primary-dim:#7c6ff7;
+      --primary-container:#272148;
+      --on-primary:#fff;
+      --on-surface:#e8e8f0;
+      --on-surface-dim:#9d9db4;
+      --on-surface-subtle:#636378;
+      --outline:#2e2e3d;
+      --outline-soft:#1e1e2a;
+      --error:#ff6b6b;
+      --error-container:#3d1a1a;
+      --success:#4ade80;
+      --success-container:#1a3d1a;
+      --warning:#fbbf24;
+      --warning-container:#3d3a1a;
+      --radius-sm:8px;
+      --radius-md:12px;
+      --radius-lg:16px;
+      --radius-full:9999px;
+      --ease:0.3s cubic-bezier(0.4,0,0.2,1);
+      --font:'Segoe UI',system-ui,-apple-system,'Helvetica Neue','Noto Sans Arabic',sans-serif;
+    }
+    html,body{
+      width:390px;
+      min-height:200px;
+      max-height:600px;
+      overflow:hidden;
+      background:var(--surface);
+      color:var(--on-surface);
+      font-family:var(--font);
+      font-size:14px;
+      line-height:1.6;
+      -webkit-font-smoothing:antialiased;
+    }
+    body{margin:0;padding:0}
+    #app{
+      display:flex;
+      flex-direction:column;
+      height:100vh;
+      max-height:600px;
+    }
+
+    /* ========== SCROLLBAR ========== */
+    ::-webkit-scrollbar{width:4px}
+    ::-webkit-scrollbar-track{background:transparent}
+    ::-webkit-scrollbar-thumb{background:var(--outline);border-radius:4px}
+    ::-webkit-scrollbar-thumb:hover{background:var(--on-surface-subtle)}
+
+    /* ========== HEADER ========== */
+    #header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:12px 16px;
+      border-bottom:1px solid var(--outline-soft);
+      flex-shrink:0;
+      background:var(--surface-elevated);
+    }
+    #header .logo{
+      font-size:20px;
+      font-weight:800;
+      letter-spacing:-0.02em;
+      background:linear-gradient(135deg,var(--primary),#c084fc,#818cf8);
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+      background-clip:text;
+    }
+    #header .header-actions{
+      display:flex;
+      gap:4px;
+    }
+    #header .header-actions button{
+      width:34px;
+      height:34px;
+      border:none;
+      border-radius:var(--radius-sm);
+      background:transparent;
+      color:var(--on-surface-dim);
+      font-size:16px;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      transition:background var(--ease),color var(--ease);
+    }
+    #header .header-actions button:hover{
+      background:var(--surface-high);
+      color:var(--on-surface);
+    }
+    #header .header-actions button:active{
+      background:var(--outline);
+    }
+    #header .header-actions button:focus-visible{
+      outline:2px solid var(--primary);
+      outline-offset:2px;
+    }
+
+    /* ========== STATUS BAR ========== */
+    #statusBar{
+      flex-shrink:0;
+      padding:8px 16px;
+      font-size:12px;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      transition:background var(--ease),color var(--ease);
+    }
+    #statusBar .status-dot{
+      width:8px;
+      height:8px;
+      border-radius:50%;
+      flex-shrink:0;
+    }
+    #statusBar.disconnected{
+      background:var(--error-container);
+      color:var(--error);
+    }
+    #statusBar.disconnected .status-dot{background:var(--error)}
+    #statusBar.connected{
+      background:var(--success-container);
+      color:var(--success);
+    }
+    #statusBar.connected .status-dot{background:var(--success)}
+    #statusBar.connecting{
+      background:var(--warning-container);
+      color:var(--warning);
+    }
+    #statusBar.connecting .status-dot{background:var(--warning);animation:pulse 1.2s ease-in-out infinite}
+    #statusBar.pairing{
+      background:var(--primary-container);
+      color:var(--primary);
+    }
+    #statusBar.pairing .status-dot{background:var(--primary);animation:pulse 1.2s ease-in-out infinite}
+    #statusBar.locked{
+      background:var(--warning-container);
+      color:var(--warning);
+    }
+    #statusBar.locked .status-dot{background:var(--warning)}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+
+    /* ========== MAIN CONTENT ========== */
+    #mainContent{
+      flex:1;
+      overflow-y:auto;
+      overflow-x:hidden;
+      position:relative;
+    }
+    .view{
+      display:none;
+      flex-direction:column;
+    }
+    .view.active{display:flex}
+
+    /* ========== DISCONNECTED VIEW ========== */
+    #viewDisconnected{
+      align-items:center;
+      justify-content:center;
+      padding:40px 24px;
+      text-align:center;
+      gap:16px;
+    }
+    #viewDisconnected .disc-icon{
+      font-size:48px;
+      margin-bottom:8px;
+      opacity:0.6;
+    }
+    #viewDisconnected p{
+      color:var(--on-surface-dim);
+      font-size:13px;
+      line-height:1.7;
+      max-width:280px;
+    }
+
+    /* ========== PAIRING VIEW ========== */
+    #viewPairing{
+      align-items:center;
+      justify-content:center;
+      padding:32px 24px;
+      text-align:center;
+      gap:16px;
+    }
+    #viewPairing h3{
+      font-size:18px;
+      font-weight:700;
+    }
+    #viewPairing p{
+      color:var(--on-surface-dim);
+      font-size:13px;
+      line-height:1.7;
+      max-width:280px;
+    }
+    #viewPairing .fingerprint-big{
+      font-family:'Cascadia Code','Fira Code',monospace;
+      font-size:26px;
+      letter-spacing:4px;
+      padding:16px 20px;
+      background:var(--surface-high);
+      border-radius:var(--radius-md);
+      border:1px solid var(--outline);
+      color:var(--primary);
+      direction:ltr;
+      word-break:break-all;
+    }
+    #viewPairing .pair-actions{
+      display:flex;
+      gap:10px;
+      width:100%;
+      max-width:300px;
+    }
+    #viewPairing .pair-actions button{flex:1}
+
+    /* ========== LOCKED VIEW ========== */
+    #viewLocked{
+      align-items:center;
+      justify-content:center;
+      padding:40px 24px;
+      text-align:center;
+      gap:12px;
+    }
+    #viewLocked .lock-icon{
+      font-size:48px;
+      margin-bottom:8px;
+      opacity:0.6;
+    }
+    #viewLocked p:first-of-type{
+      font-size:16px;
+      font-weight:600;
+    }
+    #viewLocked p:last-of-type{
+      color:var(--on-surface-dim);
+      font-size:13px;
+      max-width:260px;
+    }
+
+    /* ========== CONNECTED VIEW ========== */
+    #searchBar{
+      padding:10px 16px;
+      flex-shrink:0;
+      position:relative;
+    }
+    #searchBar::before{
+      content:'\1F50D';
+      position:absolute;
+      right:28px;
+      top:50%;
+      transform:translateY(-50%);
+      font-size:14px;
+      pointer-events:none;
+      opacity:0.5;
+      z-index:1;
+    }
+    #searchInput{
+      width:100%;
+      padding:9px 36px 9px 12px;
+      border:1px solid var(--outline);
+      border-radius:var(--radius-full);
+      background:var(--surface-elevated);
+      color:var(--on-surface);
+      font-family:var(--font);
+      font-size:13px;
+      outline:none;
+      transition:border-color var(--ease),background var(--ease);
+    }
+    #searchInput::placeholder{color:var(--on-surface-subtle)}
+    #searchInput:focus{
+      border-color:var(--primary);
+      background:var(--surface-high);
+    }
+
+    /* Tab bar */
+    #tabBar{
+      display:flex;
+      gap:2px;
+      padding:0 16px 8px;
+      flex-shrink:0;
+      border-bottom:1px solid var(--outline-soft);
+    }
+    #tabBar .tab{
+      padding:6px 12px;
+      border:none;
+      border-radius:var(--radius-full);
+      background:transparent;
+      color:var(--on-surface-dim);
+      font-family:var(--font);
+      font-size:12px;
+      cursor:pointer;
+      transition:background var(--ease),color var(--ease);
+      white-space:nowrap;
+    }
+    #tabBar .tab:hover{
+      background:var(--surface-high);
+      color:var(--on-surface);
+    }
+    #tabBar .tab.active{
+      background:var(--primary-container);
+      color:var(--primary);
+    }
+    #tabBar .tab:focus-visible{
+      outline:2px solid var(--primary);
+      outline-offset:2px;
+    }
+
+    /* Item list */
+    #itemList{
+      flex:1;
+      overflow-y:auto;
+      padding:4px 8px;
+    }
+    #itemList .item-row{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:10px 12px;
+      border-radius:var(--radius-sm);
+      cursor:pointer;
+      transition:background var(--ease);
+    }
+    #itemList .item-row:hover{background:var(--surface-elevated)}
+    #itemList .item-row:focus-visible{
+      outline:2px solid var(--primary);
+      outline-offset:-2px;
+    }
+    #itemList .item-row .item-icon{
+      width:36px;
+      height:36px;
+      border-radius:var(--radius-sm);
+      background:var(--surface-high);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:18px;
+      flex-shrink:0;
+    }
+    #itemList .item-row .item-info{
+      flex:1;
+      min-width:0;
+    }
+    #itemList .item-row .item-title{
+      font-size:14px;
+      font-weight:500;
+      color:var(--on-surface);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    #itemList .item-row .item-subtitle{
+      font-size:12px;
+      color:var(--on-surface-subtle);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+
+    /* Empty state */
+    #emptyState{
+      text-align:center;
+      padding:40px 24px;
+      color:var(--on-surface-subtle);
+      font-size:13px;
+    }
+
+    /* ========== DETAIL VIEW ========== */
+    #viewDetail{padding:0}
+    #viewDetail #btnBack{
+      display:flex;
+      align-items:center;
+      gap:6px;
+      padding:10px 16px;
+      border:none;
+      border-bottom:1px solid var(--outline-soft);
+      background:var(--surface-elevated);
+      color:var(--on-surface-dim);
+      font-family:var(--font);
+      font-size:13px;
+      cursor:pointer;
+      transition:background var(--ease),color var(--ease);
+    }
+    #viewDetail #btnBack:hover{background:var(--surface-high);color:var(--on-surface)}
+    #viewDetail #btnBack:focus-visible{outline:2px solid var(--primary);outline-offset:-2px}
+    #viewDetail #detailFields{padding:16px}
+    #viewDetail .field-group{margin-bottom:14px}
+    #viewDetail .field-label{
+      font-size:11px;
+      font-weight:600;
+      color:var(--on-surface-subtle);
+      text-transform:uppercase;
+      letter-spacing:0.04em;
+      margin-bottom:4px;
+    }
+    #viewDetail .field-value{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      background:var(--surface-elevated);
+      border:1px solid var(--outline);
+      border-radius:var(--radius-sm);
+      padding:8px 12px;
+      font-size:13px;
+      word-break:break-all;
+    }
+    #viewDetail .field-value.masked{
+      color:transparent;
+      text-shadow:0 0 0 var(--on-surface-dim);
+      user-select:none;
+    }
+    #viewDetail .field-value .field-actions{
+      display:flex;
+      gap:4px;
+      margin-right:auto;
+      flex-shrink:0;
+    }
+    #viewDetail .field-value .field-actions button{
+      width:28px;
+      height:28px;
+      border:none;
+      border-radius:var(--radius-sm);
+      background:transparent;
+      color:var(--on-surface-dim);
+      font-size:14px;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      transition:background var(--ease),color var(--ease);
+    }
+    #viewDetail .field-value .field-actions button:hover{
+      background:var(--surface-high);
+      color:var(--on-surface);
+    }
+    #viewDetail .field-value .field-actions button.copied{
+      background:var(--success-container);
+      color:var(--success);
+    }
+    #viewDetail .otp-section{
+      margin-top:8px;
+      padding:12px;
+      background:var(--primary-container);
+      border-radius:var(--radius-sm);
+      border:1px solid var(--outline);
+    }
+    #viewDetail .otp-section .otp-label{
+      font-size:11px;
+      font-weight:600;
+      color:var(--primary-dim);
+      text-transform:uppercase;
+      letter-spacing:0.04em;
+      margin-bottom:6px;
+    }
+    #viewDetail .otp-code{
+      font-family:'Cascadia Code','Fira Code',monospace;
+      font-size:28px;
+      font-weight:700;
+      letter-spacing:6px;
+      text-align:center;
+      color:var(--on-surface);
+      direction:ltr;
+    }
+    #viewDetail .otp-countdown{
+      text-align:center;
+      font-size:12px;
+      color:var(--on-surface-dim);
+      margin-top:4px;
+    }
+
+    /* ========== GENERATOR VIEW ========== */
+    #viewGenerator{padding:16px}
+    #viewGenerator .gen-tabs{
+      display:flex;
+      gap:4px;
+      margin-bottom:16px;
+    }
+    #viewGenerator .gen-tab{
+      flex:1;
+      padding:8px;
+      border:none;
+      border-radius:var(--radius-sm);
+      background:var(--surface-elevated);
+      color:var(--on-surface-dim);
+      font-family:var(--font);
+      font-size:13px;
+      cursor:pointer;
+      transition:background var(--ease),color var(--ease);
+    }
+    #viewGenerator .gen-tab:hover{
+      background:var(--surface-high);
+      color:var(--on-surface);
+    }
+    #viewGenerator .gen-tab.active{
+      background:var(--primary-container);
+      color:var(--primary);
+    }
+    #viewGenerator .gen-tab:focus-visible{
+      outline:2px solid var(--primary);
+      outline-offset:2px;
+    }
+    #viewGenerator label{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:8px 0;
+      font-size:13px;
+      color:var(--on-surface);
+      cursor:pointer;
+    }
+    #viewGenerator input[type="range"]{
+      width:100%;
+      margin:4px 0 12px;
+      -webkit-appearance:none;
+      appearance:none;
+      height:6px;
+      border-radius:3px;
+      background:var(--outline);
+      outline:none;
+    }
+    #viewGenerator input[type="range"]::-webkit-slider-thumb{
+      -webkit-appearance:none;
+      appearance:none;
+      width:18px;
+      height:18px;
+      border-radius:50%;
+      background:var(--primary);
+      cursor:pointer;
+      border:2px solid var(--on-primary);
+    }
+    #viewGenerator input[type="checkbox"]{
+      accent-color:var(--primary);
+      width:16px;
+      height:16px;
+      cursor:pointer;
+    }
+    #viewGenerator .gen-result{
+      margin-top:12px;
+      padding:12px;
+      background:var(--surface-elevated);
+      border:1px solid var(--outline);
+      border-radius:var(--radius-sm);
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+    #viewGenerator .gen-result .gen-text{
+      flex:1;
+      font-family:'Cascadia Code','Fira Code',monospace;
+      font-size:14px;
+      color:var(--on-surface);
+      word-break:break-all;
+      direction:ltr;
+      text-align:right;
+    }
+    #viewGenerator .gen-otp-code{
+      font-family:'Cascadia Code','Fira Code',monospace;
+      font-size:32px;
+      font-weight:700;
+      letter-spacing:8px;
+      text-align:center;
+      color:var(--primary);
+      padding:12px;
+      direction:ltr;
+    }
+    #viewGenerator .gen-otp-ctdown{
+      text-align:center;
+      font-size:12px;
+      color:var(--on-surface-dim);
+      margin-bottom:10px;
+    }
+    #viewGenerator input[type="text"]{
+      width:100%;
+      padding:9px 12px;
+      border:1px solid var(--outline);
+      border-radius:var(--radius-sm);
+      background:var(--surface-elevated);
+      color:var(--on-surface);
+      font-family:'Cascadia Code',monospace;
+      font-size:13px;
+      outline:none;
+      transition:border-color var(--ease);
+      direction:ltr;
+    }
+    #viewGenerator input[type="text"]:focus{
+      border-color:var(--primary);
+    }
+    #viewGenerator input[type="text"]::placeholder{color:var(--on-surface-subtle)}
+    #viewGenerator .length-display{
+      font-family:'Cascadia Code',monospace;
+      font-size:16px;
+      font-weight:700;
+      color:var(--primary);
+      min-width:28px;
+      text-align:left;
+      direction:ltr;
+    }
+
+    /* ========== BUTTONS ========== */
+    button{
+      padding:10px 16px;
+      border:none;
+      border-radius:var(--radius-sm);
+      background:var(--primary);
+      color:var(--on-primary);
+      font-family:var(--font);
+      font-size:13px;
+      font-weight:500;
+      cursor:pointer;
+      transition:background var(--ease),transform 0.1s var(--ease),box-shadow var(--ease);
+    }
+    button:hover:not(:disabled){background:var(--primary-dim)}
+    button:active:not(:disabled){transform:scale(0.97)}
+    button:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+    button:disabled{opacity:0.4;cursor:not-allowed}
+    button.secondary{
+      background:var(--surface-high);
+      color:var(--on-surface);
+    }
+    button.secondary:hover:not(:disabled){background:var(--outline)}
+    button.danger{
+      background:var(--error-container);
+      color:var(--error);
+    }
+    button.danger:hover:not(:disabled){background:var(--error);color:var(--on-primary)}
+    button.small{
+      padding:6px 10px;
+      font-size:12px;
+      border-radius:var(--radius-sm);
+    }
+    button.ghost{
+      background:transparent;
+      color:var(--on-surface-dim);
+    }
+    button.ghost:hover:not(:disabled){
+      background:var(--surface-high);
+      color:var(--on-surface);
+    }
+
+    /* ========== FOOTER ========== */
+    #footer{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:8px 16px;
+      border-top:1px solid var(--outline-soft);
+      background:var(--surface-elevated);
+      flex-shrink:0;
+      font-size:12px;
+      color:var(--on-surface-subtle);
+      gap:8px;
+    }
+    #footer #itemCount{flex:1}
+    #footer button{font-size:12px;padding:6px 12px}
+    #footer #btnGenerator{background:transparent;color:var(--on-surface-dim);font-size:16px;padding:4px 8px;border-radius:var(--radius-sm)}
+    #footer #btnGenerator:hover{background:var(--surface-high);color:var(--on-surface)}
+    #footer #btnDisconnect{font-size:11px;padding:5px 10px}
+
+    /* ========== ERROR ========== */
+    .error-banner{
+      background:var(--error-container);
+      color:var(--error);
+      padding:8px 16px;
+      font-size:12px;
+      display:none;
+    }
+    .error-banner.visible{display:block}
+
+    /* ========== FOCUS VISIBLE ========== */
+    *:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+
+    /* ========== COPIED TOOLTIP ========== */
+    @keyframes copiedPulse{
+      0%{transform:scale(1)}
+      30%{transform:scale(1.15)}
+      100%{transform:scale(1)}
+    }
+    .copied-anim{animation:copiedPulse 0.6s var(--ease)}
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div id="header">
+      <span class="logo">أمين</span>
+      <div class="header-actions">
+        <button id="btnLock" title="قفل" aria-label="قفل الخزنة">🔒</button>
+        <button id="btnSettings" title="الإعدادات" aria-label="فتح الإعدادات">⚙️</button>
+      </div>
+    </div>
+
+    <div id="errorBanner" class="error-banner" role="alert"></div>
+
+    <div id="statusBar" class="disconnected" role="status">
+      <span class="status-dot"></span>
+      <span id="statusText">غير متصل</span>
+    </div>
+
+    <div id="mainContent">
+      <div id="viewDisconnected" class="view active">
+        <div class="disc-icon">🔗</div>
+        <p>امتداد أمين للمتصفح</p>
+        <p>للاستفادة من التعبئة التلقائية وإدارة كلمات المرور، يرجى الاتصال بتطبيق أمين على جهاز الكمبيوتر</p>
+        <button id="btnConnect">اتصل بالتطبيق</button>
+      </div>
+
+      <div id="viewPairing" class="view">
+        <h3>تأكيد الاقتران</h3>
+        <p>تأكد من تطابق البصمة الظاهرة هنا مع المعروضة في تطبيق أمين</p>
+        <div id="fingerprintDisplay" class="fingerprint-big">-- -- -- -- -- --</div>
+        <p>إذا لم تتطابق البصمتان، ارفض الاقتران فوراً</p>
+        <div class="pair-actions">
+          <button id="btnRejectPair" class="danger">رفض</button>
+          <button id="btnConfirmPair">تأكيد</button>
+        </div>
+      </div>
+
+      <div id="viewConnected" class="view">
+        <div id="searchBar">
+          <input type="text" id="searchInput" placeholder="بحث في الخزنة..." autocomplete="off" dir="rtl">
+        </div>
+        <div id="tabBar">
+          <button class="tab active" data-tab="all">الكل</button>
+          <button class="tab" data-tab="password">🔑 كلمات مرور</button>
+          <button class="tab" data-tab="note">📝 ملاحظات</button>
+          <button class="tab" data-tab="card">💳 بطاقات</button>
+        </div>
+        <div id="itemList" role="list" aria-label="قائمة العناصر"></div>
+        <div id="emptyState">لا توجد عناصر</div>
+      </div>
+
+      <div id="viewLocked" class="view">
+        <div class="lock-icon">🔒</div>
+        <p>الخزنة مقفلة</p>
+        <p>افتح تطبيق أمين على جهاز الكمبيوتر ثم أعد الاتصال</p>
+        <button id="btnReconnect">إعادة الاتصال</button>
+      </div>
+
+      <div id="viewDetail" class="view">
+        <button id="btnBack">← رجوع</button>
+        <div id="detailFields"></div>
+      </div>
+
+      <div id="viewGenerator" class="view">
+        <div class="gen-tabs">
+          <button class="gen-tab active" data-gen="password">كلمة مرور</button>
+          <button class="gen-tab" data-gen="otp">رمز OTP</button>
+        </div>
+        <div id="genPassword">
+          <label>
+            <span>طول كلمة المرور</span>
+            <span class="length-display" id="genLengthVal">20</span>
+          </label>
+          <input type="range" id="genLength" min="4" max="64" value="20" step="1">
+          <label>
+            <span>رموز (!@#$%)</span>
+            <input type="checkbox" id="genSymbols" checked>
+          </label>
+          <label>
+            <span>أرقام</span>
+            <input type="checkbox" id="genDigits" checked>
+          </label>
+          <label>
+            <span>أحرف كبيرة</span>
+            <input type="checkbox" id="genUppercase" checked>
+          </label>
+          <label>
+            <span>أحرف صغيرة</span>
+            <input type="checkbox" id="genLowercase" checked>
+          </label>
+          <button id="btnGeneratePassword">توليد كلمة مرور</button>
+          <div id="genPasswordResult" class="gen-result" style="display:none">
+            <span class="gen-text" dir="ltr"></span>
+            <button class="ghost copy-btn" title="نسخ">📋</button>
+          </div>
+        </div>
+        <div id="genOtp" style="display:none">
+          <label style="display:block;margin-bottom:6px">
+            <span>المفتاح السري</span>
+          </label>
+          <input type="text" id="otpSecretInput" placeholder="مفتاح سري Base32..." autocomplete="off" spellcheck="false">
+          <button id="btnGenerateOtp" style="margin-top:12px">توليد رمز OTP</button>
+          <div id="genOtpResult" style="display:none;margin-top:12px">
+            <div class="gen-otp-code" id="genOtpCode">------</div>
+            <div class="gen-otp-ctdown" id="genOtpCountdown"></div>
+            <button class="ghost copy-btn" style="width:100%;margin-top:4px">📋 نسخ الرمز</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="footer">
+      <span id="itemCount"></span>
+      <button id="btnGenerator" title="مولد">🔧</button>
+      <button id="btnDisconnect" class="secondary">قطع الاتصال</button>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

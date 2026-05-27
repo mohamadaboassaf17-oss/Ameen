@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>إعداد أمين</title>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg:#07070c;
+      --surface:#111118;
+      --surface-elevated:#181822;
+      --surface-high:#21212e;
+      --primary:#a78bfa;
+      --primary-dim:#7c6ff7;
+      --primary-container:#272148;
+      --on-primary:#fff;
+      --on-surface:#e8e8f0;
+      --on-surface-dim:#9d9db4;
+      --on-surface-subtle:#636378;
+      --outline:#2e2e3d;
+      --outline-soft:#1e1e2a;
+      --error:#ff6b6b;
+      --error-container:#3d1a1a;
+      --success:#4ade80;
+      --success-container:#1a3d1a;
+      --radius-sm:8px;
+      --radius-md:12px;
+      --radius-lg:16px;
+      --radius-full:9999px;
+      --ease:0.3s cubic-bezier(0.4,0,0.2,1);
+      --font:'Segoe UI',system-ui,-apple-system,'Helvetica Neue','Noto Sans Arabic',sans-serif;
+    }
+    html,body{
+      width:390px;
+      min-height:360px;
+      max-height:560px;
+      overflow-x:hidden;
+      background:var(--surface);
+      color:var(--on-surface);
+      font-family:var(--font);
+      font-size:14px;
+      line-height:1.6;
+      -webkit-font-smoothing:antialiased;
+    }
+    body{margin:0;padding:0}
+
+    ::-webkit-scrollbar{width:4px}
+    ::-webkit-scrollbar-track{background:transparent}
+    ::-webkit-scrollbar-thumb{background:var(--outline);border-radius:4px}
+
+    #onboarding{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      padding:40px 24px 32px;
+      text-align:center;
+      min-height:360px;
+      justify-content:center;
+    }
+    #onboarding h2{
+      font-size:22px;
+      font-weight:800;
+      letter-spacing:-0.02em;
+      margin-bottom:8px;
+      background:linear-gradient(135deg,var(--primary),#c084fc,#818cf8);
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+      background-clip:text;
+    }
+    #onboarding .subtitle{
+      font-size:13px;
+      color:var(--on-surface-dim);
+      margin-bottom:32px;
+    }
+
+    #steps{
+      display:flex;
+      flex-direction:column;
+      gap:0;
+      width:100%;
+      max-width:320px;
+      position:relative;
+    }
+    #steps::before{
+      content:'';
+      position:absolute;
+      right:19px;
+      top:36px;
+      bottom:36px;
+      width:2px;
+      background:var(--outline);
+      z-index:0;
+    }
+    .step{
+      display:flex;
+      align-items:flex-start;
+      gap:14px;
+      padding:12px 0;
+      position:relative;
+      z-index:1;
+      opacity:0.4;
+      transition:opacity var(--ease),transform var(--ease);
+    }
+    .step.active{opacity:1}
+    .step.completed{opacity:0.7}
+    .step.completed .step-number{background:var(--success);box-shadow:0 0 0 3px rgba(74,222,128,0.2)}
+    .step-number{
+      width:40px;
+      height:40px;
+      border-radius:50%;
+      background:var(--outline);
+      color:var(--on-surface-dim);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:16px;
+      font-weight:700;
+      flex-shrink:0;
+      transition:background var(--ease),color var(--ease),box-shadow var(--ease);
+      border:2px solid transparent;
+    }
+    .step.active .step-number{
+      background:var(--primary-container);
+      color:var(--primary);
+      border-color:var(--primary);
+      box-shadow:0 0 0 4px rgba(167,139,250,0.15);
+    }
+    .step-content{flex:1;text-align:right}
+    .step-content h3{
+      font-size:14px;
+      font-weight:600;
+      margin-bottom:2px;
+    }
+    .step-content p{
+      font-size:12px;
+      color:var(--on-surface-dim);
+      line-height:1.6;
+      margin-bottom:8px;
+    }
+
+    button{
+      padding:10px 20px;
+      border:none;
+      border-radius:var(--radius-sm);
+      background:var(--primary);
+      color:var(--on-primary);
+      font-family:var(--font);
+      font-size:13px;
+      font-weight:500;
+      cursor:pointer;
+      transition:background var(--ease),transform 0.1s var(--ease);
+    }
+    button:hover:not(:disabled){background:var(--primary-dim)}
+    button:active:not(:disabled){transform:scale(0.97)}
+    button:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+    button:disabled{opacity:0.4;cursor:not-allowed}
+
+    .fingerprint-display{
+      font-family:'Cascadia Code','Fira Code',monospace;
+      font-size:20px;
+      letter-spacing:4px;
+      color:var(--primary);
+      margin:8px 0;
+      direction:ltr;
+      padding:8px 12px;
+      background:var(--surface-high);
+      border-radius:var(--radius-sm);
+      border:1px solid var(--outline);
+      display:inline-block;
+    }
+    .error-text{
+      color:var(--error);
+      font-size:12px;
+      margin-top:8px;
+    }
+    *:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+  </style>
+</head>
+<body>
+  <div id="onboarding">
+    <h2>مرحباً بك في أمين</h2>
+    <p class="subtitle">بضع خطوات لبدء الاستخدام</p>
+    <div id="steps">
+      <div class="step active" data-step="1">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <h3>تأكد من تشغيل التطبيق</h3>
+          <p>تأكد أن تطبيق أمين مفتوح على جهاز الكمبيوتر والخزنة مفتوحة</p>
+        </div>
+      </div>
+      <div class="step" data-step="2">
+        <div class="step-number">2</div>
+        <div class="step-content">
+          <h3>اتصل بالتطبيق</h3>
+          <p>سيقوم الامتداد بالاتصال تلقائياً بتطبيق أمين. انقر أدناه للبدء</p>
+          <button id="btnStartPair" disabled>بدء الاقتران</button>
+        </div>
+      </div>
+      <div class="step" data-step="3">
+        <div class="step-number">3</div>
+        <div class="step-content">
+          <h3>تحقق من البصمة</h3>
+          <p>تأكد من تطابق البصمة الظاهرة هنا مع المعروضة في تطبيق أمين</p>
+          <div id="fpContainer" style="display:none;">
+            <div class="fingerprint-display" id="fingerprintDisplay">-- -- -- -- -- --</div>
+          </div>
+          <div class="pair-actions" id="pairActions" style="display:none;display:flex;gap:8px;margin-top:8px">
+            <button id="btnRejectPair" style="background:var(--error-container);color:var(--error)">رفض</button>
+            <button id="btnConfirmPair">تأكيد</button>
+          </div>
+        </div>
+      </div>
+      <div class="step" data-step="4">
+        <div class="step-number">4</div>
+        <div class="step-content">
+          <h3>تم الإعداد!</h3>
+          <p>يمكنك الآن استخدام أمين لتعبئة كلمات المرور تلقائياً</p>
+          <button id="btnFinish">إنهاء</button>
+        </div>
+      </div>
+    </div>
+    <p id="errorText" class="error-text" style="display:none;"></p>
+  </div>
+  <script src="onboarding.js"></script>
+</body>
+</html>

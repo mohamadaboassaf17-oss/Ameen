@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Ameen.Windows.MainPage"
+             Title="أمين — Ameen"
+             BackgroundColor="{StaticResource BackgroundColor}">
+
+    <Grid RowDefinitions="*,Auto,*" Padding="40">
+        <VerticalStackLayout Grid.Row="1" Spacing="16"
+                             HorizontalOptions="Center" VerticalOptions="Center">
+
+            <!-- App title -->
+            <Label Text="أمين" FontSize="36" FontAttributes="Bold"
+                   TextColor="{StaticResource PrimaryColor}"
+                   HorizontalTextAlignment="Center" />
+
+            <Label Text="Ameen Password Manager" FontSize="14"
+                   TextColor="{StaticResource TextSecondary}"
+                   HorizontalTextAlignment="Center" />
+
+            <!-- Status message -->
+            <Label x:Name="StatusLabel" FontSize="16"
+                   TextColor="{StaticResource TextPrimary}"
+                   HorizontalTextAlignment="Center"
+                   Margin="0,12,0,0" />
+
+            <!-- Windows Hello button -->
+            <Button x:Name="WindowsHelloButton"
+                    Text="التحقق عبر Windows Hello"
+                    Clicked="OnWindowsHelloClicked"
+                    IsVisible="False"
+                    BackgroundColor="{StaticResource PrimaryColor}"
+                    TextColor="White"
+                    CornerRadius="12"
+                    HeightRequest="50"
+                    FontSize="16"
+                    Margin="0,8,0,0" />
+
+            <!-- Master password input (after reboot) -->
+            <Entry x:Name="MasterPasswordEntry"
+                   Placeholder="كلمة المرور الرئيسية"
+                   IsPassword="True"
+                   IsVisible="False"
+                   TextColor="{StaticResource TextPrimary}"
+                   PlaceholderColor="{StaticResource TextSecondary}"
+                   BackgroundColor="{StaticResource SurfaceColor}"
+                   Margin="0,8,0,0" />
+
+            <Button x:Name="UnlockButton"
+                    Text="فتح الخزنة"
+                    Clicked="OnUnlockClicked"
+                    IsVisible="False"
+                    BackgroundColor="{StaticResource PrimaryColor}"
+                    TextColor="White"
+                    CornerRadius="12"
+                    HeightRequest="50"
+                    FontSize="16" />
+
+            <!-- Error message -->
+            <Label x:Name="ErrorLabel" FontSize="13"
+                   TextColor="{StaticResource ErrorColor}"
+                   HorizontalTextAlignment="Center" />
+
+            <!-- Success indicator -->
+            <Label x:Name="SuccessLabel" FontSize="14"
+                   TextColor="{StaticResource SuccessColor}"
+                   HorizontalTextAlignment="Center" />
+        </VerticalStackLayout>
+    </Grid>
+</ContentPage>

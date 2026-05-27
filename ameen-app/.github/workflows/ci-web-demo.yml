@@ -1,0 +1,31 @@
+name: "Web Demo CI"
+
+on:
+  push:
+    paths:
+      - "web-demo/**"
+  pull_request:
+    paths:
+      - "web-demo/**"
+
+concurrency:
+  group: web-demo-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install HTML-Validate
+        run: npm install -g html-validate
+
+      - name: Lint HTML
+        run: html-validate "**/*.html"
+        working-directory: web-demo
