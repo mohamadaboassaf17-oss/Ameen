@@ -54,3 +54,4 @@ ameen-app/release/*.zip
 ameen-app/release/*.exe
 ameen-app/release/SHA256SUMS.txt
 ameen-app/release/ameen-windows-v1.0.0/
+ameen-app/extension/release/
