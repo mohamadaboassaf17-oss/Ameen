@@ -1,5 +1,13 @@
 namespace Ameen.Windows.Models;
 
+public class SyncPayload
+{
+    public string Ip { get; set; } = "";
+    public int Port { get; set; }
+    public string Pk { get; set; } = "";
+    public string Fp { get; set; } = "";
+}
+
 public class SyncResponseDto
 {
     public string MessageType { get; set; } = "";

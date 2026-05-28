@@ -1,9 +1,12 @@
 using System.Diagnostics;
+using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Threading;
 using Ameen.Windows.Models;
+using CommunityToolkit.Maui.Storage;
 
 namespace Ameen.Windows.Services;
 
@@ -216,12 +219,8 @@ public class BackupService
         {
             var fileName = $"ameen_backup_{profileName}_{DateTime.Now:yyyyMMdd_HHmmss}.ameen-backup";
 
-            var fileSaverResult = await FileSaver.Default.SaveAsync(
-                "ameen-backup",
-                new FileSaverOptions
-                {
-                    SuggestedFileName = fileName
-                });
+            using var emptyStream = new MemoryStream();
+            var fileSaverResult = await FileSaver.Default.SaveAsync(fileName, emptyStream, CancellationToken.None);
 
             if (fileSaverResult.IsSuccessful)
                 return fileSaverResult.FilePath;

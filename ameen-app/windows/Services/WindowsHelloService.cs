@@ -4,6 +4,7 @@ using System.Security.Cryptography;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using Windows.Security.Credentials;
+using Windows.Security.Credentials.UI;
 using Windows.Security.Cryptography;
 using Windows.Security.Cryptography.Core;
 
@@ -180,7 +181,7 @@ public class WindowsHelloService
                 var openResult = await KeyCredentialManager.OpenAsync(KeyCredentialName);
                 if (openResult.Status == KeyCredentialStatus.Success)
                 {
-                    await openResult.Credential.DeleteAsync();
+                    await KeyCredentialManager.DeleteAsync(KeyCredentialName);
                     deleted = true;
                 }
             }
@@ -212,38 +213,32 @@ public class WindowsHelloService
     {
         try
         {
-            foreach (var provider in new[] { CngProvider.MicrosoftPlatformCryptoProvider, CngProvider.MicrosoftSoftwareKeyStorageProvider })
+            var providers = new[] { CngProvider.MicrosoftPlatformCryptoProvider, CngProvider.MicrosoftSoftwareKeyStorageProvider };
+            foreach (var provider in providers)
             {
-                foreach (var keyName in CngKey.EnumerateKeyStorageProviders().SelectMany(p =>
+                try
                 {
-                    try { return CngKey.EnumerateKeyContainerNames(provider); }
-                    catch { return Array.Empty<string>(); }
-                }))
-                {
+                    var key = CngKey.Open(KeyCredentialName, provider);
+                    byte[] keyBlob;
                     try
                     {
-                        var key = CngKey.Open(keyName, provider);
-                        byte[] keyBlob;
-                        try
-                        {
-                            keyBlob = key.Export(CngKeyBlobFormat.GenericPublicBlob);
-                        }
-                        catch
-                        {
-                            continue;
-                        }
-
-                        if (keyBlob.Length >= publicKeyBytes.Length)
-                        {
-                            var match = keyBlob.Skip(keyBlob.Length - publicKeyBytes.Length)
-                                               .SequenceEqual(publicKeyBytes);
-                            if (match)
-                                return key;
-                        }
+                        keyBlob = key.Export(CngKeyBlobFormat.GenericPublicBlob);
                     }
                     catch
                     {
+                        continue;
                     }
+
+                    if (keyBlob.Length >= publicKeyBytes.Length)
+                    {
+                        var match = keyBlob.Skip(keyBlob.Length - publicKeyBytes.Length)
+                                           .SequenceEqual(publicKeyBytes);
+                        if (match)
+                            return key;
+                    }
+                }
+                catch
+                {
                 }
             }
         }
@@ -257,20 +252,11 @@ public class WindowsHelloService
     {
         try
         {
-            foreach (var keyName in CngKey.EnumerateKeyContainerNames(provider))
-            {
-                try
-                {
-                    return CngKey.Open(keyName, provider);
-                }
-                catch
-                {
-                }
-            }
+            return CngKey.Open(KeyCredentialName, provider);
         }
         catch
         {
+            return null;
         }
-        return null;
     }
 }

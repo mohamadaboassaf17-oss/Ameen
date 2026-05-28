@@ -6,6 +6,8 @@ using System.Drawing.Drawing2D;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
+using WinForms = System.Windows.Forms;
+using Drawing = System.Drawing;
 
 namespace Ameen.Windows.Services;
 
@@ -69,7 +71,7 @@ public class TrayIconService : IDisposable
             };
             _notifyIcon.DoubleClick += (_, _) => ShowRequested?.Invoke();
 
-            Application.Run();
+            WinForms.Application.Run();
         }
         catch (Exception ex)
         {
@@ -164,7 +166,7 @@ public class TrayIconService : IDisposable
             _notifyIcon = null;
             _contextMenu?.Dispose();
             _contextMenu = null;
-            Application.ExitThread();
+            WinForms.Application.ExitThread();
         }
         catch (Exception ex)
         {
@@ -177,13 +179,13 @@ public class TrayIconService : IDisposable
         var bitmap = new Bitmap(32, 32);
         using var g = Graphics.FromImage(bitmap);
         g.SmoothingMode = SmoothingMode.AntiAlias;
-        g.Clear(Color.Transparent);
+        g.Clear(Drawing.Color.Transparent);
 
-        using var circleBrush = new SolidBrush(Color.FromArgb(0, 122, 204));
+        using var circleBrush = new SolidBrush(Drawing.Color.FromArgb(0, 122, 204));
         g.FillEllipse(circleBrush, 0, 0, 32, 32);
 
-        using var font = new Font("Segoe UI", 18, FontStyle.Bold, GraphicsUnit.Pixel);
-        using var textBrush = new SolidBrush(Color.White);
+        using var font = new Drawing.Font("Segoe UI", 18, FontStyle.Bold, GraphicsUnit.Pixel);
+        using var textBrush = new SolidBrush(Drawing.Color.White);
         using var sf = new StringFormat
         {
             Alignment = StringAlignment.Center,

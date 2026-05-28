@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Logging;
 using ZXing.Net.Maui.Controls;
+using CommunityToolkit.Maui;
 
 namespace Ameen.Windows;
 
@@ -10,6 +11,7 @@ public static class MauiProgram
         var builder = MauiApp.CreateBuilder();
         builder
             .UseMauiApp<App>()
+            .UseMauiCommunityToolkit()
             .UseBarcodeReader()
             .ConfigureFonts(fonts =>
             {

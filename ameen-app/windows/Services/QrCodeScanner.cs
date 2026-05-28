@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Ameen.Windows.Models;
 using ZXing;
 
 namespace Ameen.Windows.Services;
@@ -22,7 +23,8 @@ public class QrCodeScanner
 
             using var stream = await result.OpenReadAsync();
             using var bitmap = new System.Drawing.Bitmap(stream);
-            var reader = new BarcodeReader
+            var source = new BitmapLuminanceSource(bitmap);
+            var reader = new BarcodeReaderGeneric
             {
                 AutoRotate = true,
                 Options = new ZXing.Common.DecodingOptions
@@ -32,7 +34,7 @@ public class QrCodeScanner
                 }
             };
 
-            var decodeResult = reader.Decode(bitmap);
+            var decodeResult = reader.Decode(source);
             if (decodeResult == null) return null;
 
             return JsonSerializer.Deserialize<SyncPayload>(decodeResult.Text);
@@ -44,10 +46,30 @@ public class QrCodeScanner
     }
 }
 
-public class SyncPayload
+file class BitmapLuminanceSource : LuminanceSource
 {
-    public string Ip { get; set; } = "";
-    public int Port { get; set; }
-    public string Fp { get; set; } = "";
-    public string Pk { get; set; } = "";
+    private readonly byte[] _luminances;
+
+    public BitmapLuminanceSource(System.Drawing.Bitmap bitmap)
+        : base(bitmap.Width, bitmap.Height)
+    {
+        _luminances = new byte[bitmap.Width * bitmap.Height];
+        for (int y = 0; y < bitmap.Height; y++)
+        {
+            for (int x = 0; x < bitmap.Width; x++)
+            {
+                var pixel = bitmap.GetPixel(x, y);
+                _luminances[y * bitmap.Width + x] = (byte)((pixel.R + pixel.G + pixel.B) / 3);
+            }
+        }
+    }
+
+    public override byte[] Matrix => _luminances;
+
+    public override byte[] getRow(int y, byte[]? row)
+    {
+        row ??= new byte[Width];
+        Array.Copy(_luminances, y * Width, row, 0, Width);
+        return row;
+    }
 }
