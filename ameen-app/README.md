@@ -140,6 +140,8 @@ To run on a connected device or emulator:
 ./gradlew installDebug
 ```
 
+For release builds, see [Release Build](#release-build-بناء-الإصدار-النهائي).
+
 ### Windows *(ويندوز)*
 
 ```bash
@@ -149,73 +151,149 @@ dotnet build windows/Ameen.Windows.sln
 To run:
 
 ```bash
-dotnet run --project windows/Ameen.Windows/Ameen.Windows.csproj
+dotnet run --project windows/Ameen.Windows.sln
 ```
+
+For release builds, see [Release Build](#release-build-بناء-الإصدار-النهائي).
 
 ### Browser Extension *(إضافة المتصفح)*
 
 ```bash
 cd extension
 npm ci
-npm run build            # Outputs to extension/dist/
+npm run build            # Outputs to extension/dist/{chrome,firefox,edge,brave}/
 ```
 
 Load unpacked:
-- **Chrome/Edge/Brave:** `chrome://extensions` → Developer mode → Load unpacked → select `extension/dist/`
-- **Firefox:** `about:debugging` → This Firefox → Load Temporary Add-on → select `extension/dist/manifest.json`
+- **Chrome/Edge/Brave:** `chrome://extensions` → Developer mode → Load unpacked → select `extension/dist/chrome/`
+- **Firefox:** `about:debugging` → This Firefox → Load Temporary Add-on → select `extension/dist/firefox/manifest.json`
+
+For release packaging, see [Release Build](#release-build-بناء-الإصدار-النهائي).
 
 ---
 
 ## Project Structure *(هيكل المشروع)*
 
 ```
-ameen/
-├── shared-crypto/          # TypeScript crypto core (shared by all platforms)
+ameen-app/
+├── shared-crypto/              # TypeScript crypto core (shared by all platforms)
 │   ├── src/
-│   │   ├── kdf.ts          # Argon2id key derivation
-│   │   ├── vault.ts        # AES-256-GCM vault seal/unseal
-│   │   ├── sync.ts         # ECDH key exchange + session encryption
-│   │   ├── totp.ts         # TOTP (RFC 6238)
-│   │   ├── password-gen.ts # Password and passphrase generator
-│   │   ├── health.ts       # Password health checks (local)
-│   │   └── backup.ts       # .ameen-backup / CSV / KDBX I/O
-│   ├── tests/
+│   │   ├── key-derivation.ts   # Argon2id key derivation
+│   │   ├── encryption.ts       # AES-256-GCM vault seal/unseal
+│   │   ├── vault-format.ts     # Vault file format
+│   │   ├── index-format.ts     # Plaintext metadata index
+│   │   ├── sync-merge.ts       # Sync conflict resolution
+│   │   ├── sync-types.ts       # Sync data types
+│   │   ├── sync-audit.ts       # Sync audit logging
+│   │   ├── totp.ts             # TOTP (RFC 6238)
+│   │   ├── password-generator.ts  # Password generator
+│   │   ├── passphrase-generator.ts # Passphrase generator
+│   │   ├── password-health.ts  # Password health checks (local)
+│   │   ├── backup-format.ts    # .ameen-backup format
+│   │   ├── csv-parser.ts       # CSV import/export
+│   │   ├── kdbx-reader.ts      # KeePass KDBX import
+│   │   ├── emergency-kit.ts    # Emergency Kit PDF
+│   │   ├── recovery.ts         # Family recovery logic
+│   │   └── cert-fingerprint.ts # Certificate fingerprint
+│   ├── tests/                  # 17 test files + benchmarks
 │   └── package.json
-├── android/                # Android app (Kotlin, Jetpack Compose)
-│   ├── app/
-│   │   └── src/main/kotlin/com/ameenpw/android/
-│   ├── gradle/
+├── android/                    # Android app (Kotlin, Jetpack Compose)
+│   ├── app/src/main/java/com/ameen/app/
+│   │   ├── security/           # BiometricAuth, KeyDerivation
+│   │   ├── services/           # Autofill, Sync, Backup, Clipboard...
+│   │   └── ui/screens/         # Vault, Generator, Health, Pairing
+│   ├── build-release.bat       # Release build script
 │   └── build.gradle.kts
-├── windows/                # Windows app (.NET MAUI)
-│   ├── Ameen.Windows/
+├── windows/                    # Windows app (.NET MAUI)
+│   ├── Pages/                  # Vault, Generator, Health, Pairing
+│   ├── Services/               # WindowsHello, Sync, WebSocket, Tray...
+│   ├── Models/                 # VaultItem, SyncModels, ExtensionMessages
+│   ├── build-release.bat       # Release build script
 │   └── Ameen.Windows.sln
-├── extension/              # Browser extension (MV3)
+├── extension/                  # Browser extension (Manifest V3)
 │   ├── src/
-│   │   ├── background/
-│   │   ├── content/
-│   │   ├── popup/
-│   │   └── native-messaging/
-│   └── package.json
-├── docs/                   # Documentation, architecture decisions, threat model
-├── LICENSE                 # AGPLv3
-├── SECURITY.md             # Security policy and reporting
-└── CONTRIBUTING.md         # Contributor guide
+│   │   ├── background/         # Service worker, WebSocket client
+│   │   ├── content/            # Autofill, field detection, overlay
+│   │   ├── popup/              # Popup UI, onboarding, settings
+│   │   └── shared/             # Constants, messages, utils
+│   ├── manifest/               # Per-browser manifests (Chrome, Firefox, Edge, Brave)
+│   ├── scripts/package.js      # Build + zip packaging
+│   └── build-release.bat       # Release build script
+├── release/                    # Release orchestration
+│   ├── build-all.bat           # Build all platforms (Windows)
+│   └── build-all.sh            # Build all platforms (macOS/Linux)
+├── web-demo/                   # Static demo + screenshots
+├── .github/                    # CI workflows + issue templates
+├── CHANGELOG.md
+├── CONTRIBUTING.md
+├── LICENSE                     # AGPLv3
+├── RELEASE_NOTES.md
+├── SECURITY.md
+└── README.md
 ```
+
+---
+
+## Release Build *(بناء الإصدار النهائي)*
+
+Use the release scripts to build all platforms and generate checksums:
+
+### Full Release Build *(بناء شامل)*
+
+```bash
+cd ameen-app/release
+
+# Windows
+build-all.bat
+
+# macOS/Linux
+bash build-all.sh
+```
+
+This will:
+1. Run shared-crypto test suite
+2. Build Android APK + AAB
+3. Build Windows portable release
+4. Package all 4 browser extension zips
+5. Generate SHA256 checksums
+
+### Per-Platform Build *(بناء حسب المنصة)*
+
+```bash
+# Android (APK + AAB)
+cd ameen-app/android
+build-release.bat          # or: bash build-release.sh
+
+# Windows (portable folder)
+cd ameen-app/windows
+build-release.bat          # or: bash build-release.sh
+
+# Browser Extensions (Chrome, Firefox, Edge, Brave zips)
+cd ameen-app/extension
+build-release.bat          # or: bash build-release.sh
+```
+
+### Android Signing *(توقيع أندرويد)*
+
+For signed release builds:
+```bash
+cd ameen-app/android
+cp keystore.properties.example keystore.properties
+# Edit keystore.properties with your keystore path and passwords
+```
+
+Output: `ameen-app/release/`
 
 ---
 
 ## Screenshots *(لقطات)*
 
-*Screenshots to be added — planned views:*
-
-- Vault list with search
-- Entry detail (username, password, TOTP, notes)
-- Password/passphrase generator
-- Password health dashboard
-- Family profile picker
-- LAN sync pairing screen (fingerprint verification)
-- Browser extension popup (autofill suggestions)
-- Emergency Kit PDF preview
+<p align="center">
+  <img src="web-demo/screenshot-01-initial.png" alt="Initial Screen" width="250" />
+  <img src="web-demo/screenshot-m2-recovery.png" alt="Family Recovery" width="250" />
+  <img src="web-demo/screenshot-m3a-vault.png" alt="Vault" width="250" />
+  <img src="web-demo/screenshot-m3b-final.png" alt="Final UI" width="250" />
+</p>
 
 ---
 
@@ -232,7 +310,6 @@ This means you are free to use, study, modify, and distribute this software, pro
 - **Discussions:** [GitHub Discussions](https://github.com/Ameen-PW/ameen/discussions) — questions, ideas, help
 - **Security:** See [SECURITY.md](./SECURITY.md) for reporting vulnerabilities responsibly
 - **Contributing:** See [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines and development setup
-- **Code of Conduct:** See [CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md)
 
 ---
 

@@ -41,3 +41,16 @@ nul
 
 # Extension release zips
 release/*.zip
+
+# Android signing
+**/keystore.properties
+*.jks
+*.keystore
+
+# Build outputs
+ameen-app/release/*.apk
+ameen-app/release/*.aab
+ameen-app/release/*.zip
+ameen-app/release/*.exe
+ameen-app/release/SHA256SUMS.txt
+ameen-app/release/ameen-windows-v1.0.0/

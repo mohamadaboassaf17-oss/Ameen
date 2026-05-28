@@ -2,6 +2,8 @@ const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
+const VERSION = process.env.VERSION || '1.0.0';
+
 const extensionDir = path.resolve(__dirname, '..');
 const distDir = path.resolve(extensionDir, 'dist');
 const releaseDir = path.resolve(extensionDir, 'release');
@@ -33,7 +35,7 @@ for (const browser of browsers) {
     continue;
   }
 
-  const zipFile = path.join(releaseDir, `ameen-${browser}-v1.0.0.zip`);
+  const zipFile = path.join(releaseDir, `ameen-${browser}-v${VERSION}.zip`);
   const files = fs.readdirSync(browserDist);
 
   // Use system zip if available, otherwise create a simple zip
@@ -46,8 +48,28 @@ for (const browser of browsers) {
     const kb = (stats.size / 1024).toFixed(1);
     console.log(`  ✅ ${browser}: ${zipFile} (${kb} KB)`);
   } catch (e) {
-    console.error(`  ❌ ${browser}: فشل إنشاء الحزمة — ${e.message}`);
+    // Fallback: try zip command (macOS/Linux)
+    try {
+      execSync(`cd "${browserDist}" && zip -r "${zipFile}" .`, {
+        cwd: extensionDir,
+        stdio: 'pipe',
+      });
+      const stats = fs.statSync(zipFile);
+      const kb = (stats.size / 1024).toFixed(1);
+      console.log(`  ✅ ${browser}: ${zipFile} (${kb} KB)`);
+    } catch (e2) {
+      console.error(`  ❌ ${browser}: Failed to create zip. Install a zip utility or run on Windows with PowerShell.`);
+    }
   }
 }
 
 console.log('\n✨ تم إنشاء جميع الحزم في:', releaseDir);
+
+// Print summary
+console.log('\n📊 ملخص الحزم:');
+const zipFiles = fs.readdirSync(releaseDir).filter(f => f.endsWith('.zip'));
+for (const f of zipFiles) {
+  const stats = fs.statSync(path.join(releaseDir, f));
+  const kb = (stats.size / 1024).toFixed(1);
+  console.log(`  📦 ${f} (${kb} KB)`);
+}
