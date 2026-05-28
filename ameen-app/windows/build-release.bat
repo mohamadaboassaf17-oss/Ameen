@@ -7,7 +7,7 @@ cd /d "%~dp0"
 if not exist "..\release" mkdir "..\release"
 
 echo Publishing Windows release...
-dotnet publish -c Release -f net8.0-windows10.0.19041.0 -o "..\release\ameen-windows-v1.0.0"
+dotnet publish Ameen.Windows.csproj -c Release -f net8.0-windows10.0.19041.0 /p:WindowsPackageType=None /p:AppxPackage=false /p:SelfContained=true /p:RuntimeIdentifier=win-x64 -o "..\release\ameen-windows-v1.0.0"
 
 if %ERRORLEVEL% NEQ 0 (
   echo ERROR: Build failed

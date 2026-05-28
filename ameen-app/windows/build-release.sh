@@ -10,7 +10,7 @@ RELEASE_DIR="../release"
 mkdir -p "$RELEASE_DIR"
 
 echo "Publishing Windows release..."
-dotnet publish -c Release -f net8.0-windows10.0.19041.0 -o "$RELEASE_DIR/ameen-windows-v1.0.0"
+dotnet publish Ameen.Windows.csproj -c Release -f net8.0-windows10.0.19041.0 /p:WindowsPackageType=None /p:AppxPackage=false /p:SelfContained=true /p:RuntimeIdentifier=win-x64 -o "$RELEASE_DIR/ameen-windows-v1.0.0"
 
 echo ""
 echo "========================================"
